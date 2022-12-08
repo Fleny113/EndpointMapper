@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-
 namespace EndpointMapper.TestApplication;
 
 public class WeatherForecastEndpoint : IEndpoint
@@ -9,7 +7,7 @@ public class WeatherForecastEndpoint : IEndpoint
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-    [HttpMapGet("/weatherforecast"), Authorize]
+    [HttpMapGet("/weatherforecast")]
     [EndpointName("GetWeatherForecast")]
     public WeatherForecast[] Handle()
     {

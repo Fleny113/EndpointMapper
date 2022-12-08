@@ -1,43 +1,78 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace EndpointMapper;
 
-public static class IServiceCollectionExtensions
+/// <summary>
+/// Extensions from EndpointMapper
+/// </summary>
+public static class EndopointMapperExtensions
 {
     private static readonly List<Type> s_endpointTypes = new();
 
+    /// <summary>
+    /// Map all endpoints into the assembly where the type <typeparamref name="T"/> lives
+    /// </summary>
+    /// <typeparam name="T">AssemblyScanner Type, you can use types like Program or one of your ones</typeparam>
+    /// <param name="services"><see cref="IServiceCollection"/></param>
+    /// <param name="configure">Configure the options for EndpointMapper</param>
+    /// <returns>The <see cref="IServiceCollection"/> instace for chaning methods</returns>
     public static IServiceCollection AddEndpointMapper<T>(this IServiceCollection services, Action<EndpointMapperOptions>? configure = null)
         => services.AddEndpointMapper(configure, typeof(T));
 
+    /// <summary>
+    /// Map all endpoints into the assemblies where the types into the markes array lives
+    /// </summary>
+    /// <param name="services"><see cref="IServiceCollection"/></param>
+    /// <param name="configure">Configure the options for EndpointMapper</param>
+    /// <param name="markers">Array of Type for AssemblyScanning</param>
+    /// <returns>The <see cref="IServiceCollection"/> instace for chaning methods</returns>
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services, Action<EndpointMapperOptions>? configure = null, params Type[] markers)
         => services.AddEndpointMapper(configure, markers.Select(x => x.Assembly).ToArray());
 
+    /// <summary>
+    /// Map all endpoints into the assemblies that are in the assemblies array
+    /// </summary>
+    /// <param name="services"><see cref="IServiceCollection"/></param>
+    /// <param name="configure">Configure the options for EndpointMapper</param>
+    /// <param name="assemblies">Array of Assembly for AssemblyScanning</param>
+    /// <returns>The <see cref="IServiceCollection"/> instace for chaning methods</returns>
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services, Action<EndpointMapperOptions>? configure = null, params Assembly[] assemblies)
     {
         // don't modify the default values
         configure ??= _ => { };
 
-        var unused = services.Configure(configure);
+        services.Configure(configure);
 
         if (assemblies.Length is 0)
             throw new ArgumentException("You must provide at least one assembly to scan", nameof(assemblies));
 
         foreach (var assembly in assemblies)
-            s_endpointTypes.AddRange(assembly.ExportedTypes.Where(cls => cls.IsAssignableTo(typeof(IEndpoint)) && cls.IsClass && !cls.IsAbstract));
+        {
+            var types = assembly.ExportedTypes.Where(cls => cls.IsClass && !cls.IsAbstract && cls.IsAssignableTo(typeof(IEndpoint)));
+            s_endpointTypes.AddRange(types);
+        }
 
         return services;
     }
 
+    /// <summary>
+    /// Register middleware into the Request Pipeline and map all endpoints as ASP.NET Core Minimal Apis
+    /// </summary>
+    /// <param name="app"><see cref="WebApplication"/> instance</param>
+    /// <returns>The <see cref="WebApplication"/> instance for chaning methods</returns>
     public static WebApplication UseEndpointMapper(this WebApplication app)
     {
-        var unused = app.UseMiddleware<EndpointMapperMiddleware>();
+        app.UseMiddleware<EndpointMapperMiddleware>();
+
+        using var scope = app.Services.CreateScope();
 
         var endpoints = s_endpointTypes
-            .Select(Activator.CreateInstance)
+            .Select(t => ActivatorUtilities.CreateInstance(scope.ServiceProvider, t))
             .Cast<IEndpoint>()
             .ToArray();
 

@@ -3,15 +3,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EndpointMapper;
 
+/// <summary>
+/// Middleware to resolve Dependency Injection into the endpoints
+/// </summary>
 public sealed class EndpointMapperMiddleware
 {
     private readonly RequestDelegate _next;
 
+    /// <summary>
+    /// Do not Initializzate this class manually. Use UseMiddleware on an <see cref="Microsoft.AspNetCore.Builder.WebApplication"/> instance
+    /// </summary>
+    /// <param name="next">ASP.NET Request Delegate</param>
     public EndpointMapperMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
+    /// <summary>
+    /// Middleware code.
+    /// </summary>
+    /// <param name="context">HttpContext for the incoming request</param>
+    /// <returns>A <see cref="Task"/></returns>
     public Task InvokeAsync(HttpContext context)
     {
         var endpoint = context.GetEndpoint();
@@ -40,7 +52,8 @@ public sealed class EndpointMapperMiddleware
         for (var i = 0; i < constructorParams.Length; i++)
             services[i] = context.RequestServices.GetRequiredService(constructorParams[i].ParameterType);
 
-        var unused = constructor.Invoke(endpointInstace, services);
+        // Call the constructor with the new services
+        constructor.Invoke(endpointInstace, services);
 
         // Continue with the pipeline
         return _next(context);

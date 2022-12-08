@@ -6,15 +6,32 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Fleny</Authors>
+		<Description>Endpoint Mapper for ASP.NET Core 7</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api</PackageTags>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
+
 	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.OpenApi" Version="1.4.4" />
-	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+
+		<PackageReference Include="Microsoft.OpenApi" Version="1.4.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
 	</ItemGroup>
 
 </Project>
