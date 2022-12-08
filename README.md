@@ -54,6 +54,8 @@ public class ExampleEndpoint : IEndpoint
     }
 }
 ```
+> **Note**:
+> If you want to bind values from the request into params of the request see [this section under Advanced](#parameters-to-the-handler-method)
 
 ## Advanced
 
@@ -107,5 +109,20 @@ from ASP.NET, the rest is handled automatically
 
 Simple create a class that extends `HttpMapAttribute` and use `: base()` on the constructor to pass the HttpVerb and the route(s),
 the rest is handled automatically
+
+### Parameters to the Handler Method
+
+You can you use the method like it was an inline lambda from the `MapGet()` method on the `WebApplication`, so you can do:
+- Dependency Injection (from the method params)
+- Bind Query/Route/Body/Header values into params
+
+### Method based configuration
+
+If you prefer you can implement a `Configure` method into the class that implement IEndpoint witch give you the ability to use the `WebApplication`
+to manually configure the routes and all the configuration to it
+
+> **Warning**:
+> Doing this **WILL** cause a few thing to don't be respected, for example, the `RoutePrefix` will NOT be respected as the code to map the endpoint
+is not EndpointMapper but it's your implementation for the `Configure` method.
 
 [^1]: See EndpointMapper.TestApplication/Program.cs for more.
