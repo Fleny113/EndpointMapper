@@ -10,9 +10,14 @@ namespace EndpointMapper;
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public sealed class HttpMapDeleteAttribute : HttpMapAttribute
 {
+    /// <inheritdoc />
+    public override IEnumerable<string> Methods => new[] { HttpMethod.Delete.Method };
+
     /// <summary>
     /// Map route(s) to the DELETE Http Verb
     /// </summary>
     /// <param name="routes">ASP.NET route strings</param>
-    public HttpMapDeleteAttribute([StringSyntax("Route")] params string[] routes) : base(HttpMethod.Delete, routes) { }
+    public HttpMapDeleteAttribute([StringSyntax("Route")] params string[] routes) : base(routes)
+    {
+    }
 }

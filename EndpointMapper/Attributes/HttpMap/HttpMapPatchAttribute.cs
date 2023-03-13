@@ -10,9 +10,14 @@ namespace EndpointMapper;
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public sealed class HttpMapPatchAttribute : HttpMapAttribute
 {
+    /// <inheritdoc />
+    public override IEnumerable<string> Methods => new[] { HttpMethod.Patch.Method };
+
     /// <summary>
     /// Map route(s) to the PATCH Http Verb
     /// </summary>
     /// <param name="routes">ASP.NET route strings</param>
-    public HttpMapPatchAttribute([StringSyntax("Route")] params string[] routes) : base(HttpMethod.Patch, routes) { }
+    public HttpMapPatchAttribute([StringSyntax("Route")] params string[] routes) : base(routes)
+    {
+    }
 }

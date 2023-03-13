@@ -11,7 +11,7 @@ public sealed class EndpointMapperMiddleware
     private readonly RequestDelegate _next;
 
     /// <summary>
-    /// Do not Initializzate this class manually. Use UseMiddleware on an <see cref="Microsoft.AspNetCore.Builder.WebApplication"/> instance
+    /// Do not initialize this class manually. Use UseMiddleware on an <see cref="Microsoft.AspNetCore.Builder.WebApplication"/> instance
     /// </summary>
     /// <param name="next">ASP.NET Request Delegate</param>
     public EndpointMapperMiddleware(RequestDelegate next)
@@ -31,16 +31,16 @@ public sealed class EndpointMapperMiddleware
         if (endpoint is null)
             return _next(context);
 
-        var endpointInstace = endpoint.Metadata.GetMetadata<IEndpoint>();
+        var endpointInstance = endpoint.Metadata.GetMetadata<IEndpoint>();
 
         // if can't get the instance of the endpoint then continue with the pipeline
-        if (endpointInstace is null)
+        if (endpointInstance is null)
             return _next(context);
 
-        var endpointType = endpointInstace.GetType();
+        var endpointType = endpointInstance.GetType();
 
         // if it's not an IEndpoint continue the pipeline
-        if (endpointType is null || !endpointType.IsAssignableTo(typeof(IEndpoint)))
+        if (!endpointType.IsAssignableTo(typeof(IEndpoint)))
             return _next(context);
 
         // Update the services injected
@@ -53,7 +53,7 @@ public sealed class EndpointMapperMiddleware
             services[i] = context.RequestServices.GetRequiredService(constructorParams[i].ParameterType);
 
         // Call the constructor with the new services
-        constructor.Invoke(endpointInstace, services);
+        constructor.Invoke(endpointInstance, services);
 
         // Continue with the pipeline
         return _next(context);

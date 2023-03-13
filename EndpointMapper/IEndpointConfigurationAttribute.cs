@@ -12,4 +12,5 @@ public interface IEndpointConfigurationAttribute
     /// </summary>
     /// <param name="builder">Builder of the Route for calling configuration methods</param>
     void Configure(RouteHandlerBuilder builder);
+    
 }

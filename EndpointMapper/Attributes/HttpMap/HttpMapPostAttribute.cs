@@ -10,9 +10,14 @@ namespace EndpointMapper;
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public sealed class HttpMapPostAttribute : HttpMapAttribute
 {
+    /// <inheritdoc />
+    public override IEnumerable<string> Methods => new[] { HttpMethod.Post.Method };
+    
     /// <summary>
     /// Map route(s) to the POST Http Verb
     /// </summary>
     /// <param name="routes">ASP.NET route strings</param>
-    public HttpMapPostAttribute([StringSyntax("Route")] params string[] routes) : base(HttpMethod.Post, routes) { }
+    public HttpMapPostAttribute([StringSyntax("Route")] params string[] routes) : base(routes)
+    {
+    }
 }

@@ -10,9 +10,14 @@ namespace EndpointMapper;
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public sealed class HttpMapConnectAttribute : HttpMapAttribute
 {
+    /// <inheritdoc />
+    public override IEnumerable<string> Methods => new[] { HttpMethod.Connect.Method };
+
     /// <summary>
     /// Map route(s) to the CONNECT Http Verb
     /// </summary>
     /// <param name="routes">ASP.NET route strings</param>
-    public HttpMapConnectAttribute([StringSyntax("Route")] params string[] routes) : base(HttpMethod.Connect, routes) { }
+    public HttpMapConnectAttribute([StringSyntax("Route")] params string[] routes) : base(routes)
+    {
+    }
 }

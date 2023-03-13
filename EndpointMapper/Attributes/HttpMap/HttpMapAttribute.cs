@@ -10,28 +10,22 @@ namespace EndpointMapper;
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public abstract class HttpMapAttribute : Attribute
 {
-    internal HttpMethod Verb { get; set; }
-    internal IEnumerable<string> Routes { get; set; }
+    /// <summary>
+    /// HTTP Verbs to be used when mapping the endpoint
+    /// </summary>
+    public abstract IEnumerable<string> Methods { get; }
+    
+    /// <summary>
+    /// HTTP Routes that the endpoint will map to
+    /// </summary>
+    internal IEnumerable<string> Routes { get; }
 
     /// <summary>
-    /// HttpAttribute Constuctor
+    /// HttpAttribute Constructor with multiple routes
     /// </summary>
-    /// <param name="verb">HTTP Method</param>
-    /// <param name="route">ASP.NET route string</param>
-    protected HttpMapAttribute(HttpMethod verb, [StringSyntax("Route")] string route)
-    {
-        Verb = verb;
-        Routes = new List<string> { route };
-    }
-
-    /// <summary>
-    /// HttpAttribute Constuctor
-    /// </summary>
-    /// <param name="verb">HTTP Method</param>
     /// <param name="routes">ASP.NET route strings</param>
-    protected HttpMapAttribute(HttpMethod verb, [StringSyntax("Route")] params string[] routes)
+    protected HttpMapAttribute([StringSyntax("Route")] params string[] routes)
     {
-        Verb = verb;
         Routes = routes;
     }
 }

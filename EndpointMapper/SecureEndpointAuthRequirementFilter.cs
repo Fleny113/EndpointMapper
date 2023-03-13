@@ -6,14 +6,15 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace EndpointMapper;
 
 /// <summary>
-/// Swashbuckle.AspNetCore Operation Filder to map <see cref="AuthorizeAttribute"/> from endpoints
+/// Swashbuckle.AspNetCore Operation Filter to map <see cref="AuthorizeAttribute"/> from endpoints
 /// </summary>
+// ReSharper disable once ClassNeverInstantiated.Global
 public sealed class SecureEndpointAuthRequirementFilter : IOperationFilter
 {
     private readonly string? _defaultSchema;
 
     /// <summary>
-    /// Don't inizializate this call directly, use OperationFilter&lt;TFilter&gt;() from the configure action in AddSwaggerGen
+    /// Don't initialize this call directly, use OperationFilter&lt;TFilter&gt;() from the configure action in AddSwaggerGen
     /// </summary>
     /// <param name="schemeProvider">IAuthenticationSchemeProvider</param>
     public SecureEndpointAuthRequirementFilter(IAuthenticationSchemeProvider schemeProvider)
@@ -29,7 +30,7 @@ public sealed class SecureEndpointAuthRequirementFilter : IOperationFilter
     /// Called from Swashbuckle.AspNetCore when using OperationFilter&lt;TFilter&gt;()
     /// </summary>
     /// <param name="operation">OpenApiOperation</param>
-    /// <param name="context">OperationFilderContext</param>
+    /// <param name="context">OperationFinderContext</param>
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         if (!context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().Any())
