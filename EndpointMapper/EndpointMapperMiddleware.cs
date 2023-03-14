@@ -30,22 +30,21 @@ public sealed class EndpointMapperMiddleware
 
         if (endpoint is null)
             return _next(context);
-
-        var endpointInstance = endpoint.Metadata.GetMetadata<IEndpoint>();
+        
+        var instance = endpoint.Metadata.GetMetadata<IEndpoint>();
 
         // if can't get the instance of the endpoint then continue with the pipeline
-        if (endpointInstance is null)
+        if (instance is null)
             return _next(context);
 
-        var endpointType = endpointInstance.GetType();
-
-        // if it's not an IEndpoint continue the pipeline
-        if (!endpointType.IsAssignableTo(typeof(IEndpoint)))
-            return _next(context);
+        var endpointType = instance.GetType();
 
         // Update the services injected
         var constructor = endpointType.GetConstructors()[0];
         var constructorParams = constructor.GetParameters().AsSpan();
+
+        if (constructorParams.IsEmpty)
+            return _next(context);
 
         var services = new object[constructorParams.Length];
 
@@ -53,7 +52,7 @@ public sealed class EndpointMapperMiddleware
             services[i] = context.RequestServices.GetRequiredService(constructorParams[i].ParameterType);
 
         // Call the constructor with the new services
-        constructor.Invoke(endpointInstance, services);
+        constructor.Invoke(instance, services);
 
         // Continue with the pipeline
         return _next(context);

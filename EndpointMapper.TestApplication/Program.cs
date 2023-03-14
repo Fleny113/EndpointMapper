@@ -8,12 +8,14 @@ builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer()
     .AddJwtBearer("AnotherJWT");
 
+builder.Services.AddOutputCache();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.OperationFilter<SecureEndpointAuthRequirementFilter>();
 
-    c.AddSecurityDefinition("Bearer", new()
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Bearer JWT",
         Type = SecuritySchemeType.Http,
@@ -21,7 +23,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    c.AddSecurityDefinition("AnotherJWT", new()
+    c.AddSecurityDefinition("AnotherJWT", new OpenApiSecurityScheme
     {
         Name = "Another JWT",
         Type = SecuritySchemeType.Http,
@@ -30,7 +32,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddEndpointMapper<Program>();
+builder.Services.AddEndpointMapper<Program>(cfg =>
+{
+    cfg.RoutePrefix = "/api";
+    cfg.ConfigureGroupBuilder = groupBuilder =>
+    {
+        groupBuilder.MapDelete("/helloWorld", () => "Hello World!");
+    };
+});
 
 var app = builder.Build();
 
@@ -40,7 +49,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseOutputCache();
 
 app.UseEndpointMapper();
 

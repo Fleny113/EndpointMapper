@@ -5,16 +5,21 @@ namespace EndpointMapper.TestApplication;
 
 public sealed class DependencyInjectionEndpoint : IEndpoint
 {
-    private readonly EndpointMapperOptions _options;
+    private readonly EndpointMapperConfiguration _configuration;
 
-    public DependencyInjectionEndpoint(IOptions<EndpointMapperOptions> endpointMapperOptions)
+    public DependencyInjectionEndpoint(IOptions<EndpointMapperConfiguration> endpointMapperOptions)
     {
-        _options = endpointMapperOptions.Value;
+        _configuration = endpointMapperOptions.Value;
+    }
+
+    public void Configure(RouteHandlerBuilder builder)
+    {
+        builder.CacheOutput(x => x.Expire(TimeSpan.FromSeconds(10)));
     }
 
     [HttpMapGet("/di")]
-    public Ok<EndpointMapperOptions> Handle()
+    public Ok<string> Handle()
     {
-        return TypedResults.Ok(_options);
+        return TypedResults.Ok(_configuration.RoutePrefix);
     }
 }

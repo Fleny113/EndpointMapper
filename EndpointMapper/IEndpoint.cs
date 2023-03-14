@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JetBrains.Annotations;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -7,6 +8,7 @@ namespace EndpointMapper;
 /// <summary>
 /// Interface to implement for the AssemblyScanner to detect and add your endpoint(s)
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.WithMembers)]
 public interface IEndpoint
 {
     /// <summary>

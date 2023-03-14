@@ -5,7 +5,7 @@ namespace EndpointMapper;
 /// <summary>
 /// Options for EndpointMapper
 /// </summary>
-public sealed record EndpointMapperOptions
+public sealed record EndpointMapperConfiguration
 {
     /// <summary>
     /// Prefix of all routes mapped from EndpointMapper
@@ -18,4 +18,4 @@ public sealed record EndpointMapperOptions
     /// </summary>
     /// ReSharper disable once PropertyCanBeMadeInitOnly.Global
     public required Action<RouteGroupBuilder> ConfigureGroupBuilder { get; set; } = _ => {};
-};
+}

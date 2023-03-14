@@ -13,7 +13,7 @@ public class AuthenticationEndpoint : IEndpoint
     }
 
     [HttpMapGet("/auth/2"), Authorize(AuthenticationSchemes = "AnotherJWT")]
-    public Ok<string> HandleStrunz(ClaimsPrincipal user)
+    public Ok<string> HandleWithAnotherAuthScheme(ClaimsPrincipal user)
     {
         return TypedResults.Ok($"Hello {user.Identity?.Name}");
     }

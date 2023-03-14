@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Routing;
 
 namespace EndpointMapper;
@@ -15,37 +17,40 @@ public static class EndpointMapperExtensions
     private static Type[] _endpointTypes = Array.Empty<Type>();
 
     /// <summary>
-    /// Map all endpoints into the assembly where the type <typeparamref name="T"/> lives
+    /// Map all EndpointMapper endpoints into the assembly where the type <typeparamref name="T"/> lives
     /// </summary>
     /// <typeparam name="T">AssemblyScanner Type, you can use types like Program or one of your ones</typeparam>
     /// <param name="services"><see cref="IServiceCollection"/></param>
     /// <param name="configure">Configure the options for EndpointMapper</param>
-    /// <returns>The <see cref="IServiceCollection"/> instance for chaining methods</returns>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper<T>(this IServiceCollection services,
-        Action<EndpointMapperOptions>? configure = null)
-        => services.AddEndpointMapper(configure, typeof(T));
+        Action<EndpointMapperConfiguration>? configure = null)
+        => services.AddEndpointMapper(configure, typeof(T).Assembly);
 
     /// <summary>
-    /// Map all endpoints into the assemblies where the types into the markes array lives
+    /// Map all EndpointMapper endpoints into the assemblies where the types into <paramref name="markers"/> lives
     /// </summary>
     /// <param name="services"><see cref="IServiceCollection"/></param>
     /// <param name="configure">Configure the options for EndpointMapper</param>
     /// <param name="markers">Array of Type for AssemblyScanning</param>
-    /// <returns>The <see cref="IServiceCollection"/> instance for chaining methods</returns>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services,
-        Action<EndpointMapperOptions>? configure = null,
+        Action<EndpointMapperConfiguration>? configure = null,
         params Type[] markers)
         => services.AddEndpointMapper(configure, markers.Select(x => x.Assembly).ToArray());
 
     /// <summary>
-    /// Map all endpoints into the assemblies that are in the assemblies array
+    /// Map all EndpointMapper endpoints into the assemblies that are in the <paramref name="assemblies"/>  array
     /// </summary>
     /// <param name="services"><see cref="IServiceCollection"/></param>
     /// <param name="configure">Configure the options for EndpointMapper</param>
     /// <param name="assemblies">Array of Assembly for AssemblyScanning</param>
-    /// <returns>The <see cref="IServiceCollection"/> instance for chaining methods</returns>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services,
-        Action<EndpointMapperOptions>? configure = null,
+        Action<EndpointMapperConfiguration>? configure = null,
         params Assembly[] assemblies)
     {
         // don't modify the default values
@@ -58,7 +63,7 @@ public static class EndpointMapperExtensions
 
         _endpointTypes = assemblies
             .SelectMany(a => a.ExportedTypes)
-            .Where(c => c is { IsClass: true, IsAbstract: false } && c.IsAssignableTo(typeof(IEndpoint)))
+            .Where(t => t is { IsClass: true, IsAbstract: false } && t.IsAssignableTo(typeof(IEndpoint)))
             .ToArray();
 
         return services;
@@ -69,49 +74,55 @@ public static class EndpointMapperExtensions
     /// </summary>
     /// <param name="app"><see cref="WebApplication"/> instance</param>
     /// <returns>The <see cref="WebApplication"/> instance for chaining methods</returns>
+    [UsedImplicitly]
     public static WebApplication UseEndpointMapper(this WebApplication app)
     {
         app.UseMiddleware<EndpointMapperMiddleware>();
-        var options = app.Services.GetRequiredService<IOptions<EndpointMapperOptions>>();
 
-        using var scope = app.Services.CreateScope();
+        var options = app.Services.GetRequiredService<IOptions<EndpointMapperConfiguration>>();
 
         var endpoints = _endpointTypes
-            .Select(t => ActivatorUtilities.CreateInstance(scope.ServiceProvider, t))
+            .Select(RuntimeHelpers.GetUninitializedObject)
             .Cast<IEndpoint>()
             .ToArray();
 
+        var groupBuilder = app.MapGroup(options.Value.RoutePrefix);
+
+        options.Value.ConfigureGroupBuilder(groupBuilder);
+        
         foreach (var endpoint in endpoints)
         {
-            var groupBuilder = app.MapGroup(options.Value.RoutePrefix);
-
-            // Configure the groupBuilder
-            options.Value.ConfigureGroupBuilder(groupBuilder);
-            
-            // Add the endpoint from a user-defined function given the WebApplication
+            // Add the endpoint from a user-defined function given the RouteGroupBuilder
             //  keeping in consideration the RoutePrefix
             endpoint.Register(groupBuilder);
 
             // Add the endpoint based on the attributes implemented on the methods
-            foreach (var method in endpoint.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
-                MapAttributes(groupBuilder, endpoint, method);
+            FindEndpoints(endpoint, groupBuilder);
         }
 
         return app;
     }
 
-    private static void MapAttributes(IEndpointRouteBuilder group, IEndpoint endpoint, MethodInfo method)
+    private static void FindEndpoints(IEndpoint endpoint, IEndpointRouteBuilder builder)
     {
-        foreach (var customAttribute in method.CustomAttributes)
-        {
-            var attribute = method.GetCustomAttribute(customAttribute.AttributeType);
+        var methods = endpoint
+            .GetType()
+            .GetMethods(BindingFlags.Instance | BindingFlags.Public);
 
-            if (attribute is HttpMapAttribute mapAttribute)
-                MapEndpoints(group, endpoint, method, mapAttribute);
+        foreach (var methodInfo in methods)
+        {
+            var httpMapAttributes = methodInfo.GetCustomAttributes<HttpMapAttribute>(false);
+        
+            foreach (var httpMapAttribute in httpMapAttributes)
+            {
+                MapEndpoints(builder, endpoint, methodInfo, httpMapAttribute);
+            }
         }
     }
 
-    private static void MapEndpoints(IEndpointRouteBuilder group, IEndpoint endpoint, MethodInfo method,
+    private static void MapEndpoints(IEndpointRouteBuilder group,
+        IEndpoint endpoint,
+        MethodInfo method,
         HttpMapAttribute attribute)
     {
         foreach (var route in attribute.Routes)
@@ -122,42 +133,28 @@ public static class EndpointMapperExtensions
             // Configure the endpoint based on the attributes on it
             //  this only checks for the attribute implementing IEndpointConfigurationAttribute
             //  not the one from ASP.NET core
-            ConfigurationAttributes(builder, method);
+            var configurationAttributes = method.GetCustomAttributes<EndpointConfigurationAttribute>(false);
+
+            foreach (var configurationAttribute in configurationAttributes)
+                configurationAttribute.Configure(builder);
             
             // Configure the endpoint based on the configure method defined in the class
             endpoint.Configure(builder);
         }
     }
 
-    private static void ConfigurationAttributes(RouteHandlerBuilder builder, MemberInfo method)
-    {
-        foreach (var customAttribute in method.CustomAttributes)
-        {
-            var custom = method.GetCustomAttribute(customAttribute.AttributeType);
-
-            if (custom is IEndpointConfigurationAttribute attribute)
-                attribute.Configure(builder);
-        }
-    }
-
     private static Delegate CreateDelegate(this MethodInfo methodInfo, object target)
     {
-        Func<Type[], Type> getType;
-        var isAction = methodInfo.ReturnType == typeof(void);
         var paramsType = methodInfo.GetParameters().Select(p => p.ParameterType);
 
-        if (isAction)
+        var delegateType = methodInfo.ReturnType switch
         {
-            getType = Expression.GetActionType;
-        }
-        else
-        {
-            getType = Expression.GetFuncType;
-            paramsType = paramsType.Concat(new[] { methodInfo.ReturnType });
-        }
+            _ when methodInfo.ReturnType == typeof(void) => Expression.GetActionType(paramsType.ToArray()),
+            _ => Expression.GetFuncType(paramsType.Concat(new [] { methodInfo.ReturnType }).ToArray())
+        };
 
         return methodInfo.IsStatic
-            ? Delegate.CreateDelegate(getType(paramsType.ToArray()), methodInfo)
-            : Delegate.CreateDelegate(getType(paramsType.ToArray()), target, methodInfo.Name);
+            ? Delegate.CreateDelegate(delegateType, methodInfo)
+            : Delegate.CreateDelegate(delegateType, target, methodInfo);
     }
 }
