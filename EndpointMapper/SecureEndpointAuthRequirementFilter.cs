@@ -36,18 +36,27 @@ public sealed class SecureEndpointAuthRequirementFilter : IOperationFilter
         if (!context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<AuthorizeAttribute>().Any())
             return;
 
-        var authAttribute = context.MethodInfo.CustomAttributes.FirstOrDefault(attr => attr.AttributeType == typeof(AuthorizeAttribute));
+        var authAttribute = context.MethodInfo.CustomAttributes
+            .FirstOrDefault(attr => attr.AttributeType == typeof(AuthorizeAttribute));
 
         if (authAttribute is null)
             return;
 
-        var auth = authAttribute.NamedArguments.FirstOrDefault(x => x.MemberName == "AuthenticationSchemes").TypedValue.Value as string;
+        var auth = authAttribute.NamedArguments
+            .FirstOrDefault(x => x.MemberName == "AuthenticationSchemes").TypedValue.Value as string;
 
         auth ??= _defaultSchema;
 
         operation.Security.Add(new OpenApiSecurityRequirement
         {
-            [new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = auth } }] = new List<string>()
+            [new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = auth
+                }
+            }] = new List<string>()
         });
     }
 }

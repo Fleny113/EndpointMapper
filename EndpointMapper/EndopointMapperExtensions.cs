@@ -73,11 +73,13 @@ public static class EndpointMapperExtensions
     /// Register middleware into the Request Pipeline and map all endpoints as ASP.NET Core Minimal Apis
     /// </summary>
     /// <param name="app"><see cref="WebApplication"/> instance</param>
+    /// <param name="addMiddleware">Add or not the middleware for the constructor based DI resolution, default: true</param>
     /// <returns>The <see cref="WebApplication"/> instance for chaining methods</returns>
     [UsedImplicitly]
-    public static WebApplication UseEndpointMapper(this WebApplication app)
+    public static WebApplication UseEndpointMapper(this WebApplication app, bool addMiddleware = true)
     {
-        app.UseMiddleware<EndpointMapperMiddleware>();
+        if (addMiddleware)
+            app.UseMiddleware<EndpointMapperMiddleware>();
 
         var options = app.Services.GetRequiredService<IOptions<EndpointMapperConfiguration>>();
 

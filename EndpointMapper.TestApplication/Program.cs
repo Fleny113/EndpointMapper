@@ -1,3 +1,4 @@
+using System.Reflection;
 using EndpointMapper;
 using Microsoft.OpenApi.Models;
 
@@ -11,11 +12,9 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddOutputCache();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(config =>
 {
-    c.OperationFilter<SecureEndpointAuthRequirementFilter>();
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Bearer JWT",
         Type = SecuritySchemeType.Http,
@@ -23,13 +22,21 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    c.AddSecurityDefinition("AnotherJWT", new OpenApiSecurityScheme
+    config.AddSecurityDefinition("AnotherJWT", new OpenApiSecurityScheme
     {
         Name = "Another JWT",
         Type = SecuritySchemeType.Http,
         In = ParameterLocation.Header,
         Scheme = "Bearer"
     });
+    
+    config.OperationFilter<SecureEndpointAuthRequirementFilter>();
+    
+    // Get the XML file path from the Assembly
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+
+    // Add the comments into the generation for the OpenApi scheme
+    config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
 });
 
 builder.Services.AddEndpointMapper<Program>(cfg =>

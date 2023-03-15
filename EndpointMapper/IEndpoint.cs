@@ -12,10 +12,10 @@ namespace EndpointMapper;
 public interface IEndpoint
 {
     /// <summary>
-    /// Use the <see cref="RouteGroupBuilder"/> to map (and optionally configure) the routes into the endpoint
+    /// Use the <see cref="IEndpointRouteBuilder"/> to map (and optionally configure) the routes into the endpoint
     /// </summary>
-    /// <param name="builder"><see cref="RouteGroupBuilder"/>  to register and configure the route(s)</param>
-    public void Register(RouteGroupBuilder builder)
+    /// <param name="builder"><see cref="IEndpointRouteBuilder"/>  to register and configure the route(s)</param>
+    public void Register(IEndpointRouteBuilder builder)
     {
     }
 
