@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EndpointMapper;
@@ -11,19 +12,20 @@ public sealed class EndpointMapperMiddleware
     private readonly RequestDelegate _next;
 
     /// <summary>
-    /// Do not initialize this class manually. Use UseMiddleware on an <see cref="Microsoft.AspNetCore.Builder.WebApplication"/> instance
+    /// Constructor for the EndpointMapper DI Middleware
     /// </summary>
-    /// <param name="next">ASP.NET Request Delegate</param>
+    /// <param name="next">ASP.NET continuation pipeline delegate</param>
     public EndpointMapperMiddleware(RequestDelegate next)
     {
         _next = next;
     }
-
+    
     /// <summary>
-    /// Middleware code.
+    /// Middleware code where we try to get the instance from the metadata and re-populate it's services
     /// </summary>
-    /// <param name="context">HttpContext for the incoming request</param>
-    /// <returns>A <see cref="Task"/></returns>
+    /// <param name="context">HttpContext for the request</param>
+    /// <returns>The <see cref="RequestDelegate"/> invoked with the given <see cref="HttpContext"/></returns>
+    [UsedImplicitly]
     public Task InvokeAsync(HttpContext context)
     {
         var endpoint = context.GetEndpoint();
@@ -40,17 +42,28 @@ public sealed class EndpointMapperMiddleware
         var endpointType = instance.GetType();
 
         // Update the services injected
-        var constructor = endpointType.GetConstructors()[0];
-        var constructorParams = constructor.GetParameters().AsSpan();
+        var constructors = endpointType.GetConstructors();
 
-        if (constructorParams.IsEmpty)
+        // There isn't any constructor
+        if (constructors.Length <= 0)
             return _next(context);
 
-        var services = new object[constructorParams.Length];
+        var constructor = constructors[0];
+        
+        var constructorParams = constructor.GetParameters().AsSpan();
+        
+        var services = constructorParams.IsEmpty
+            ? Array.Empty<object>()
+            : new object[constructorParams.Length];
 
-        for (var i = 0; i < constructorParams.Length; i++)
-            services[i] = context.RequestServices.GetRequiredService(constructorParams[i].ParameterType);
-
+        if (!constructorParams.IsEmpty)
+        {
+            for (var i = 0; i < constructorParams.Length; i++)
+            {
+                services[i] = context.RequestServices.GetRequiredService(constructorParams[i].ParameterType);   
+            }
+        }
+        
         // Call the constructor with the new services
         constructor.Invoke(instance, services);
 
