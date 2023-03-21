@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -8,7 +9,7 @@ public class MultiEndpoint : IEndpoint
 {
     public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods, MethodInfo method)
     {
-        Console.WriteLine($"Processing {route}, for verbs {JsonSerializer.Serialize(methods)} for method {method.Name}");
+        Debug.WriteLine($"Processing {route}, for verbs {JsonSerializer.Serialize(methods)} for method {method.Name}");
     }
 
     [HttpMapGet("/multi", "/multi/2"), HttpMapDelete("/multi", "/multi/2")]

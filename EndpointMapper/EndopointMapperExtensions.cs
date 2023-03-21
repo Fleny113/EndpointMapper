@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 
 namespace EndpointMapper;
 
@@ -15,6 +17,8 @@ namespace EndpointMapper;
 public static class EndpointMapperExtensions
 {
     private static Type[] _endpointTypes = Array.Empty<Type>();
+    private static int _endpointFound;
+    private static TimeSpan _timeTookToFindEndpoints;
 
     /// <summary>
     /// Map all EndpointMapper endpoints into the assembly where the type <typeparamref name="T"/> lives
@@ -53,20 +57,29 @@ public static class EndpointMapperExtensions
         Action<EndpointMapperConfiguration>? configure = null,
         params Assembly[] assemblies)
     {
-        // don't modify the default values
-        configure ??= _ => { };
+        var startTime = Stopwatch.GetTimestamp();
 
-        services.Configure(configure);
+        try
+        {
+            // don't modify the default values
+            configure ??= _ => { };
 
-        if (assemblies.Length is 0)
-            throw new ArgumentException("You must provide at least one assembly to scan", nameof(assemblies));
+            services.Configure(configure);
 
-        _endpointTypes = assemblies
-            .SelectMany(a => a.ExportedTypes)
-            .Where(t => t is { IsClass: true, IsAbstract: false } && t.IsAssignableTo(typeof(IEndpoint)))
-            .ToArray();
+            if (assemblies.Length is 0)
+                throw new ArgumentException("You must provide at least one assembly to scan", nameof(assemblies));
 
-        return services;
+            _endpointTypes = assemblies
+                .SelectMany(a => a.ExportedTypes)
+                .Where(t => t is { IsClass: true, IsAbstract: false } && t.IsAssignableTo(typeof(IEndpoint)))
+                .ToArray();
+
+            return services;
+        }
+        finally
+        {
+            _timeTookToFindEndpoints = Stopwatch.GetElapsedTime(startTime);
+        }
     }
 
     /// <summary>
@@ -78,31 +91,57 @@ public static class EndpointMapperExtensions
     [UsedImplicitly]
     public static WebApplication UseEndpointMapper(this WebApplication app, bool addMiddleware = true)
     {
-        if (addMiddleware)
-            app.UseMiddleware<EndpointMapperMiddleware>();
-
-        var options = app.Services.GetRequiredService<IOptions<EndpointMapperConfiguration>>();
-
-        var endpoints = _endpointTypes
-            .Select(RuntimeHelpers.GetUninitializedObject)
-            .Cast<IEndpoint>()
-            .ToArray();
-
-        var groupBuilder = app.MapGroup(options.Value.RoutePrefix);
-
-        options.Value.ConfigureGroupBuilder(groupBuilder);
+        var startTime = Stopwatch.GetTimestamp();
         
-        foreach (var endpoint in endpoints)
+        var options = app.Services.GetRequiredService<IOptions<EndpointMapperConfiguration>>();
+        var logger = app.Services.GetRequiredService<ILogger<StartupTimer>>();
+        
+        try 
         {
-            // Add the endpoint from a user-defined function given the RouteGroupBuilder
-            //  keeping in consideration the RoutePrefix
-            endpoint.Register(groupBuilder);
+            if (addMiddleware)
+                app.UseMiddleware<EndpointMapperMiddleware>();
 
-            // Add the endpoint based on the attributes implemented on the methods
-            FindEndpoints(endpoint, groupBuilder);
+            var endpoints = _endpointTypes
+                .Select(RuntimeHelpers.GetUninitializedObject)
+                .Cast<IEndpoint>()
+                .ToArray();
+
+            var groupBuilder = app.MapGroup(options.Value.RoutePrefix);
+
+            options.Value.ConfigureGroupBuilder(groupBuilder);
+
+            foreach (var endpoint in endpoints)
+            {
+                // Add the endpoint from a user-defined function given the RouteGroupBuilder
+                //  keeping in consideration the RoutePrefix
+                endpoint.Register(groupBuilder);
+
+                // Add the endpoint based on the attributes implemented on the methods
+                FindEndpoints(endpoint, groupBuilder);
+            }
+
+            return app;
         }
+        finally
+        {
+            if (options.Value.LogTimeTookToInitialize)
+            {
+                var timeTook = Stopwatch.GetElapsedTime(startTime);
+                var totalTimeTook = _timeTookToFindEndpoints + timeTook;
+            
+                logger.LogTrace("Finding {count} endpoint classes took: {time}ms",
+                    _endpointTypes.Length,
+                    _timeTookToFindEndpoints.Milliseconds);
 
-        return app;
+                logger.LogTrace("Registering {count} route took: {time}ms", 
+                    _endpointFound, 
+                    timeTook.Milliseconds);
+
+                logger.LogDebug("Registering {count} endpoints took: {time}ms",
+                    _endpointFound,
+                    totalTimeTook.Milliseconds);   
+            }
+        }
     }
 
     private static void FindEndpoints(IEndpoint endpoint, IEndpointRouteBuilder builder)
@@ -132,6 +171,8 @@ public static class EndpointMapperExtensions
             var builder = group.MapMethods(route, attribute.Methods, method.CreateDelegate(endpoint))
                 .WithMetadata(endpoint);
 
+            _endpointFound++;
+            
             // Configure the endpoint based on the attributes on it
             //  this only checks for the attribute implementing IEndpointConfigurationAttribute
             //  not the one from ASP.NET core

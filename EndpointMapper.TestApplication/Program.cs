@@ -39,10 +39,10 @@ builder.Services.AddSwaggerGen(config =>
     config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
 });
 
-builder.Services.AddEndpointMapper<Program>(cfg =>
+builder.Services.AddEndpointMapper<Program>(config =>
 {
-    cfg.RoutePrefix = "/api";
-    cfg.ConfigureGroupBuilder = groupBuilder =>
+    config.RoutePrefix = "/api";
+    config.ConfigureGroupBuilder = groupBuilder =>
     {
         groupBuilder.MapDelete("/helloWorld", () => "Hello World!");
     };
