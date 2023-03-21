@@ -141,7 +141,7 @@ public static class EndpointMapperExtensions
                 configurationAttribute.Configure(builder);
             
             // Configure the endpoint based on the configure method defined in the class
-            endpoint.Configure(builder);
+            endpoint.Configure(builder, route, attribute.Methods, method);
         }
     }
 
