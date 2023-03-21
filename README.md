@@ -21,19 +21,18 @@ Add into the `Program.cs`
 - `builder.Services.AddEndpointMapper<T>();`
 - `app.UseEndpointMapper();`
 
-Then create a public class that implement `IEndpoint` and add a method with attribute `HttpMapGet`
+Then create a public class that implements `IEndpoint` and add a method with attribute `HttpMapGet`
 or one of the variants for each HTTP verb
 
 > **Note**:
 > see [Samples](#sample) for an example
 
 > **Note**:
+>
 > If you want to use bind parameters to the method function [see this section](#parameters-binding-and-function-return)
-
-> **Note**:
+>
 > If you want to use dependency injection [see this section](#dependency-injection)
-
-> **Note**:
+>
 > If you want to use Swagger [see this section](#openapi-support-swagger)
 
 ### Sample
@@ -75,8 +74,8 @@ public class ExampleEndpoint : IEndpoint
 
 ## Parameters Binding and function return
 
-Since EndpointMapper uses the native ASP.NET delegate system to map your endpoint and make them work you can threat your
-method just like it was an inline delegate to the `app.MapGet(...)` method.
+Since EndpointMapper uses the native ASP.NET delegate system to map your endpoint and make them work, so you can threat
+your method like the inline delegate to the `app.MapGet(...)` method.
 
 So you can do
 - Http Body, Query, Route, Headers binding into the function arguments
@@ -95,18 +94,18 @@ response back with attached a body that contains a string saying `Hello world fr
 While you can use the method parameters to inject your services to be used, if you prefer you still can use the 
 constructor of the class you created to resolve your services and map them to a private readonly field for example.
 
-Since this is done by EndpointMapper it's requires a middleware, the middleware is register by-default when using the
+This is done by EndpointMapper using a middleware, the middleware is registered by-default when using the
 `.UseEndpointMapper()` on the `WebApplication`, but if you don't want to add it to the middleware pipeline and you
 don't want to use the constructor based DI then you can pass a `false` to the method like this: 
 `.UseEndpointMapper(addMiddleware: false)`
 
 > **Warning**
 > As sayed above setting this to false **will** skip the DI resolution using the middleware, and since EndpointMapper
-> when create the instance of the class in the `.UseEndpointMapper()` method, the class is created uninitialized all the 
-> fields will be null (unless the field has a default value) and the _non static_ constructor **wont** be called, so if
-> you need to use a constructor to initialize something and for some reason you can't do it using a default value
-> then setting this setting _addMiddleware_ to false may cause unexpected behaviour, keep in mind that static
-> constructor will be called and will function as normal, as them are called by the .NET runtime
+> creates the endpoint classes during the `.UseEndpointMapper()` method, and the classes are created uninitialized all 
+> the fields will be null (unless the field has a default value) and the _non static_ constructor **wont** be called.
+> So if you need to use a constructor to initialize something and for some reason you can't do it using a default value
+> then setting addMiddleware to false may cause unexpected behaviour, keep in mind that static constructor will be 
+> called and will function as normal, as them are called by the .NET runtime
 
 > **Note**
 > You could just pass false and don't add the "addMiddleware: " part, but for readability purposes it's kept in here
@@ -116,13 +115,12 @@ don't want to use the constructor based DI then you can pass a `false` to the me
 
 ## OpenAPI support (swagger)
 
-EndpointMapper only supports `Swashbuckle.AspNetCore`[^1], but it's support is out-of-the-box and don't require
+EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], but it's support is out-of-the-box and don't require
 any additional package to work (except `Swashbuckle.AspNetCore` obviously)
 
 > **Warning**
-> For authentication or XML documentation you may need to add some code to your `.AddSwaggerGen(...)` call, 
-> see [this section for more information about the authentication support](#authentication-requirements) and
-> [this section for the XML documentation](#xml-documentation)
+> For [authentication](#authentication-requirements) or [XML documentation](#xml-documentation) you may need to add 
+> some code to your `.AddSwaggerGen(...)` call
 
 ### XML documentation
 
@@ -151,7 +149,7 @@ config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), i
 > the code accordingly, if you are unsure there is an example of the complete call to `.AddSwaggerGen()` to the [end of
 > the swagger section](#addswaggergen-example-call)
 
-[^1]: That in .NET 7 the ASP.NET template also uses `Microsoft.AspNetCore.OpenApi`
+[^template]: That in .NET 7 the ASP.NET template also uses `Microsoft.AspNetCore.OpenApi`
 
 ### Authentication requirements
 
@@ -161,7 +159,7 @@ need to add to the `.AddSwaggerGen()` call the registration of Security Definiti
 
 EndpointMapper provides you an operation filter to add those requirements automatically when it detects the
 `[Authorize]` attribute, if you manually check for authentication using a Filter or something else then this is not
-needed.
+needed, and you will need something else to add the requirements
 
 The only code you will need to add to your `.AddSwaggerGen()` call is the following
 ```csharp
@@ -223,16 +221,16 @@ builder.Services.AddSwaggerGen(config =>
 ### Method based configuration
 
 You may want to add a OutputCaching policy, but there is a problem: since parameters to attributes can only be 
-compile-time constant value, so we can't pass an action to configure and for this reason we would need to define a
-policy for each and every endpoint that has even one small need
+compile-time constant value, we can't pass an action to configure the caching and for this reason we would need to 
+define a policy for each and every endpoint
 
 That is not practical at all. It will bloat your application with policies used in 1 or maybe 2 places, that in some
 context can be totally fine, as it gives a central access to all the policies, but you may not want this
 
 For this reason EndpointMapper when maps an endpoint first checks for attributes extending 
-`EndpointConfigurationAttribute` to add some attribute that may be missing in ASP.NET, like `[Filter]` and then runs
-the `Configure(RouteHandlerBuilder)` that is in your class, where you have the `RouteHandlerBuilder` and you can do
-whatever you want with it, for example, setting a policy for OutputCaching, the only thing you need to do is overriding
+`EndpointConfigurationAttribute` to add some attribute that may be missing in ASP.NET, like `[Filter<T>]` and then runs
+the `Configure` method that is in your class, where you have the `RouteHandlerBuilder` and you can do
+whatever you want with it, for example, setting a policy for OutputCaching, the only thing you need to do is creating
 the `Configure(RouteHandlerBuilder)` method and add your own logic for configuring the endpoint
 
 > **Warning**
@@ -241,39 +239,45 @@ the `Configure(RouteHandlerBuilder)` method and add your own logic for configuri
 > `Register` method
 
 > **Note**
-> Since this method is for class and with EndpointMapper you can add more then one handler function to the class
-> because nothing it's stopping you from doing that, the `Configure` method will be called for each endpoint mapped 
-> independently from if it was a different function[^2], if it is for the second / third / ... route of the attribute[^3]
-> or if it the same method with 2 different HTTP verb, from 2 different attributes[^4], all of there 3 cases mixes,
-> so let's assume you have 2 method, each with 3 routes and 2 attribute, then the `Configure` will be called 12 times
-> in total[^5]
+> Since this method is for class and with EndpointMapper you can add more then one handler function to the class, even 
+> though it is not recommended, the `Configure` method will be called for each endpoint mapped independently from if
+> it's a different function[^different-function], if it's is for the second / third / ... route of the 
+> attribute[^multiple-routes] or if it's the same method with 2 different mapping attributes that map to different HTTP 
+> methods[^different-attributes], all of there 3 cases mixes, so let's assume you have 2 method, each with 3 
+> routes and 2 attribute, then the `Configure` will be called 12 times in total[^explanation-for-12-call].
+>
+> To get more control on what configuration is applied where, you could split the endpoints in multiple files 
+> or using one of the `Configure` overloads that gives information about the current endpoint that is being configured, 
+> there are 3 overload in total, ignoring the base one, each one adds one information on top of the builder, the route, 
+> the HTTP methods and finally the MethodInfo
 
-[^2]: example, you have 2 methods, `Handle` and `HandleButDifferent` and you map both with an `[HttpMapGet]`,
-EndpointMapper will call the `Configure` first for `Handle` and it's Get mapping, then for `HandleButDifferent` and it's
-Get mapping
+[^different-function]: example, you have 2 methods, `Handle` and `HandleButDifferent` and you map both with an 
+`[HttpMapGet]`, EndpointMapper will call the `Configure` first for `Handle` and its Get mapping, then for 
+`HandleButDifferent` and its Get mapping
 
-[^3]: example, you have a `Handle` method with `[HttpMapGet("/a", "/b")]`,
+[^multiple-routes]: example, you have a `Handle` method with `[HttpMapGet("/a", "/b")]`,
 EndpointMapper will call the `Configure` first for /a, then for /b again
 
-[^4]: example, you have a `Handle` method with `[HttpMapGet("/"), HttpMapPost("/")]`, Endpoint will call the `Configure`
-first for the Get mapping, then for the Post mapping, BUT if the attribute that you use for mapping implies multiple
-HTTP verb, like an attribute named `[HttpMapGetAndPost("/")]` that bind your endpoint to both Get and Post then
-EndpointMapper will call `Configure` only once for this method because it's in fact a single attribute
+[^different-attributes]: example, you have a `Handle` method with `[HttpMapGet("/"), HttpMapPost("/")]`, EndpointMapper
+will call the `Configure` first for the Get mapping, then for the Post mapping, BUT if the attribute that you use for 
+mapping implies multiple HTTP verb, like an attribute named `[HttpMapGetAndPost("/")]` that bind your endpoint to 
+both Get and Post then EndpointMapper will call `Configure` only once for this method because it's in fact a single 
+attribute
 
-[^5]: explanation of why 12, first we get the first method, it has 2 attributes, we take the first, we get the 3 routes
-and as stated in the second rule[^3] we call it 3 times total, then we get the second attributes and call the `Configure`
-other 3 times for the second rule[^3], and this was the third rule[^4] (the 2 attributes) and we have already called
-the `Configure` 6 times, then to respect the first rule[^2] we need to this again, and we get another 6 calls, up to a
-total of 12
+[^explanation-for-12-call]: explanation of why 12, first we get the first method, it has 2 attributes, we take the
+first, we get the 3 routes and as stated in the second rule[^multiple-routes] we call it 3 times total, then we get the 
+second attributes and call the `Configure` other 3 times for the second rule[^multiple-routes], and this was the third 
+rule[^different-attributes] (the 2 attributes) and we have already called the `Configure` 6 times, then to respect the 
+first rule[^different-function] we need to this again, and we get another 6 calls, up to a total of 12
 
 ### Method based registration
 
 If you don't like the fact that EndpointMapper uses attributes to map your endpoints or you need to map to a HTTP verb
-that does not have an attribute then you can override the `Register(IEndpointRouteBuilder)` method on the class
-implementing IEndpoint that gives you the `IEndpointRouteBuilder` witch has access to methods like `.MapGet()`
+that does not have an attribute then you can override the `Register` method on the class implementing IEndpoint 
+that gives you the `IEndpointRouteBuilder` witch has access to methods like `.MapGet()`
 
 > **Warning**
-> Don't use `Register(IEndpointRouteBuilder)` if you need to configure thing like OutputCaching that on can accept an
+> Don't use `Register(IEndpointRouteBuilder)` if you need to configure stuff like OutputCaching that can accept an
 > action to configure it's behaviour without creating a policy, for this there is the `Configure(RouteHandlerBuilder)`
 > method instead, you can [see more about this here](#method-based-configuration)
 
