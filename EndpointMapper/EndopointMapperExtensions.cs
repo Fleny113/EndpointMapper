@@ -129,15 +129,15 @@ public static class EndpointMapperExtensions
                 var timeTook = Stopwatch.GetElapsedTime(startTime);
                 var totalTimeTook = _timeTookToFindEndpoints + timeTook;
             
-                logger.LogTrace("Finding {count} endpoint classes took: {time}ms",
+                logger.LogTrace("Finding {Count} endpoint classes took: {Time}ms",
                     _endpointTypes.Length,
                     _timeTookToFindEndpoints.Milliseconds);
 
-                logger.LogTrace("Registering {count} route took: {time}ms", 
+                logger.LogTrace("Registering {Count} route took: {Time}ms", 
                     _endpointFound, 
                     timeTook.Milliseconds);
 
-                logger.LogDebug("Registering {count} endpoints took: {time}ms",
+                logger.LogDebug("Registering {Count} endpoints took: {Time}ms",
                     _endpointFound,
                     totalTimeTook.Milliseconds);   
             }

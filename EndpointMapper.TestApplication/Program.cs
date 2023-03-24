@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(config =>
         Scheme = "Bearer"
     });
     
-    config.OperationFilter<SecureEndpointAuthRequirementFilter>();
+    config.OperationFilter<AuthenticationRequirementOperationFilter>();
     
     // Get the XML file path from the Assembly
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

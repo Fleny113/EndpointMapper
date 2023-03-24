@@ -173,7 +173,7 @@ config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 });
 
 // Add the operationFilter to add the authentication requirements where needed
-config.OperationFilter<SecureEndpointAuthRequirementFilter>();
+config.OperationFilter<AuthenticationRequirementOperationFilter>();
 ```
 
 > **Note**
@@ -204,7 +204,7 @@ builder.Services.AddSwaggerGen(config =>
     });
     
     // Add the operationFilter to add the authentication requirements where needed
-    config.OperationFilter<SecureEndpointAuthRequirementFilter>();
+    config.OperationFilter<AuthenticationRequirementOperationFilter>();
     
     // Get the XML file path from the Assembly
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
