@@ -1,6 +1,6 @@
 # EndpointMapper
 
-Build on top of Minimal APIs and designed to be as easy to use as possible
+Built on top of Minimal APIs and easy to use
 
 ## Installation
 
@@ -17,7 +17,7 @@ dotnet add package EndpointMapper
 
 ## Usage
 
-Add into the `Program.cs`
+Add this into the `Program.cs`
 - `builder.Services.AddEndpointMapper<T>();`
 - `app.UseEndpointMapper();`
 
@@ -52,7 +52,7 @@ app.UseEndpointMapper();
 app.Run();
 ```
 
-Then create a file, in this case it's the root of the project but could be any folder
+Then create a file, in this case it's in the root of the project but it could be in any folder
 
 ExampleEndpoint.cs:
 ```csharp
@@ -68,41 +68,41 @@ public class ExampleEndpoint : IEndpoint
 }
 ```
 > **Note**:
-> If you want to bind values from the request into params of the request see [this](#parameters-binding-and-function-return)
+> If you want to bind values from the request into the params of the request see [this](#parameters-binding-and-function-return)
 
 ---
 
 ## Parameters Binding and function return
 
-Since EndpointMapper uses the native ASP.NET delegate system to map your endpoint and make them work, so you can threat
+Since EndpointMapper uses the native ASP.NET delegate system to map your endpoint and make them work, you can threat
 your method like the inline delegate to the `app.MapGet(...)` method.
 
-So you can do
+So you can do:
 - Http Body, Query, Route, Headers binding into the function arguments
-- Dependency Injection (for more details [see this section](#dependency-injection))
+- Dependency Injection (for more details, [see this section](#dependency-injection))
 - Attributes like `[FromBody]` or `[FromQuery]` to explicitly map the required values into arguments
 - Return using the `Results` or `TypedResults` methods or directly a `string` or any other values that ASP.NET
 automatically can translate into a valid HTTP response body
 
-An example of this can be seen in the [example](#sample) where it's used TypedResults to send an 200 Status code
-response back with attached a body that contains a string saying `Hello world from EndpointMapper`
+An example of this can be seen in the [example](#sample) where TypedResults is used to send an 200 Status code
+response back with a body attached that contains a string saying `Hello world from EndpointMapper`
 
 ---
 
 ## Dependency Injection
 
-While you can use the method parameters to inject your services to be used, if you prefer you still can use the 
-constructor of the class you created to resolve your services and map them to a private readonly field for example.
+While you can use the method parameters to inject and use your services, if you want you can still use the 
+constructor of the class you created to resolve your services and map them to a private readonly field, for example.
 
-This is done by EndpointMapper using a middleware, the middleware is registered by-default when using the
+This is done by EndpointMapper using a middleware that's registered by-default when using the
 `.UseEndpointMapper()` on the `WebApplication`, but if you don't want to add it to the middleware pipeline and you
 don't want to use the constructor based DI then you can pass a `false` to the method like this: 
 `.UseEndpointMapper(addMiddleware: false)`
 
 > **Warning**
-> As sayed above setting this to false **will** skip the DI resolution using the middleware, and since EndpointMapper
-> creates the endpoint classes during the `.UseEndpointMapper()` method, and the classes are created uninitialized all 
-> the fields will be null (unless the field has a default value) and the _non static_ constructor **wont** be called.
+> As stated above, setting this to false **will** skip the DI resolution using the middleware, and since EndpointMapper
+> creates the endpoint classes during the `.UseEndpointMapper()` method, and the created classes are uninitialized, all 
+> the fields will be null (unless the field has a default value) and the _non static_ constructor **won't** be called.
 > So if you need to use a constructor to initialize something and for some reason you can't do it using a default value
 > then setting addMiddleware to false may cause unexpected behaviour, keep in mind that static constructor will be 
 > called and will function as normal, as them are called by the .NET runtime
@@ -115,8 +115,8 @@ don't want to use the constructor based DI then you can pass a `false` to the me
 
 ## OpenAPI support (swagger)
 
-EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], but it's support is out-of-the-box and don't require
-any additional package to work (except `Swashbuckle.AspNetCore` obviously)
+EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], but its support is out-of-the-box and doesn't require
+any additional package to work (except `Swashbuckle.AspNetCore`, obviously)
 
 > **Warning**
 > For [authentication](#authentication-requirements) or [XML documentation](#xml-documentation) you may need to add 
@@ -140,20 +140,20 @@ config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), i
 ```
 
 > **Note**
-> You may need to add `using System.Reflection;` because we use the `Assembly` class that lives in the 
+> You may need to add `using System.Reflection;` because we use the `Assembly` class available in the 
 > `System.Reflection` namespace
 
 > **Note**
-> In the code you need to add the action passed as first argument to `.AddSwaggerGen()`, `config` it's the name
-> of the variable to witch the `SwaggerGenOption` instance is bound, if you named it in another way you need to change
-> the code accordingly, if you are unsure there is an example of the complete call to `.AddSwaggerGen()` to the [end of
+> In the code you need to add the action passed as first argument to `.AddSwaggerGen()`, `config` is the name
+> of the variable to which the `SwaggerGenOption` instance is bound, if you named it in another way you'll need to change
+> the code accordingly, if you're not sure about what you're doing, there is an example of the complete call to `.AddSwaggerGen()` to the [end of
 > the swagger section](#addswaggergen-example-call)
 
-[^template]: That in .NET 7 the ASP.NET template also uses `Microsoft.AspNetCore.OpenApi`
+[^template]: The .NET 7 the ASP.NET template also uses `Microsoft.AspNetCore.OpenApi`
 
 ### Authentication requirements
 
-If you have authentication in your application you need to let swagger known how to authenticate against it, so you
+If you have authentication in your application you need to let swagger know how to authenticate against it, you will
 need to add to the `.AddSwaggerGen()` call the registration of Security Definition and if you use the ASP.NET
 `[Authorize]` attribute you may also need to add some code to detect the attribute and add the requirement
 
@@ -177,17 +177,17 @@ config.OperationFilter<AuthenticationRequirementOperationFilter>();
 ```
 
 > **Note**
-> In the code you need to add the action passed as first argument to `.AddSwaggerGen()`, `config` it's the name
+> In the code you'll need to add the action passed as first argument to `.AddSwaggerGen()`, `config` it's the name
 > of the variable to witch the `SwaggerGenOption` instance is bound, if you named it in another way you need to change
-> the code accordingly, if you are unsure there is an example of the complete call to `.AddSwaggerGen()` to the [end of
+> the code accordingly, if you're not sure about what you're doing there is an example of the complete call to `.AddSwaggerGen()` at the [end of
 > the swagger section](#addswaggergen-example-call)
 
 ### AddSwaggerGen example call
 
 This is an example call to the `.AddSwaggerGen()` method witch has both XML comments integration and user authentication
 
-This call is here to help understand the code snippet(s) in the context of the whole call, you may not copy-paste all
-the function as (especially the authentication stuff) requires edits based on your application needs, if you want more
+This call is here to help you understand the code snippet(s) in the context of the whole call, you may not copy-paste all
+the function as (especially the authentication stuff) it requires edits based on your application needs, if you want more
 context you can refer to the `EndpointMapper.TestApplication/Program.cs` file
 
 ```csharp
@@ -224,11 +224,11 @@ You may want to add a OutputCaching policy, but there is a problem: since parame
 compile-time constant value, we can't pass an action to configure the caching and for this reason we would need to 
 define a policy for each and every endpoint
 
-That is not practical at all. It will bloat your application with policies used in 1 or maybe 2 places, that in some
-context can be totally fine, as it gives a central access to all the policies, but you may not want this
+That is not practical at all. It will bloat your application with policies used in 1 or maybe 2 places, but in some
+contexts it can be totally fine, as it gives a central access to all the policies, but you may not want this
 
-For this reason EndpointMapper when maps an endpoint first checks for attributes extending 
-`EndpointConfigurationAttribute` to add some attribute that may be missing in ASP.NET, like `[Filter<T>]` and then runs
+For this reason when EndpointMapper maps an endpoint, it firstly checks for attributes extending 
+`EndpointConfigurationAttribute` to add some attribute that may be missing in ASP.NET, like `[Filter<T>]`, and then runs
 the `Configure` method that is in your class, where you have the `RouteHandlerBuilder` and you can do
 whatever you want with it, for example, setting a policy for OutputCaching, the only thing you need to do is creating
 the `Configure(RouteHandlerBuilder)` method and add your own logic for configuring the endpoint
@@ -243,12 +243,13 @@ the `Configure(RouteHandlerBuilder)` method and add your own logic for configuri
 > though it is not recommended, the `Configure` method will be called for each endpoint mapped independently from if
 > it's a different function[^different-function], if it's is for the second / third / ... route of the 
 > attribute[^multiple-routes] or if it's the same method with 2 different mapping attributes that map to different HTTP 
-> methods[^different-attributes], all of there 3 cases mixes, so let's assume you have 2 method, each with 3 
-> routes and 2 attribute, then the `Configure` will be called 12 times in total[^explanation-for-12-call].
+> methods[^different-attributes], all of there 3 cases mixes, so let's assume you have 2 methods, each with 3 
+> routes and 2 attributes, then the `Configure` will be called 12 times in total[^explanation-for-12-call].
 >
 > To get more control on what configuration is applied where, you could split the endpoints in multiple files 
 > or using one of the `Configure` overloads that gives information about the current endpoint that is being configured, 
-> there are 3 overload in total, ignoring the base one, each one adds one information on top of the builder, the route, 
+> there are 3 overloads in total, ignoring the base one.
+> Each one adds one information on top of the builder, the route, 
 > the HTTP methods and finally the MethodInfo
 
 [^different-function]: example, you have 2 methods, `Handle` and `HandleButDifferent` and you map both with an 
@@ -273,12 +274,12 @@ first rule[^different-function] we need to this again, and we get another 6 call
 ### Method based registration
 
 If you don't like the fact that EndpointMapper uses attributes to map your endpoints or you need to map to a HTTP verb
-that does not have an attribute then you can override the `Register` method on the class implementing IEndpoint 
-that gives you the `IEndpointRouteBuilder` witch has access to methods like `.MapGet()`
+that does not have an attribute, you can override the `Register` method on the class implementing IEndpoint 
+that gives you the `IEndpointRouteBuilder` which has access to methods like `.MapGet()`
 
 > **Warning**
 > Don't use `Register(IEndpointRouteBuilder)` if you need to configure stuff like OutputCaching that can accept an
-> action to configure it's behaviour without creating a policy, for this there is the `Configure(RouteHandlerBuilder)`
+> action to configure its behaviour without creating a policy, for this there is the `Configure(RouteHandlerBuilder)`
 > method instead, you can [see more about this here](#method-based-configuration)
 
 > **Note**
@@ -289,12 +290,12 @@ that gives you the `IEndpointRouteBuilder` witch has access to methods like `.Ma
 > `RouteGroupBuilder`, this is because to respect the configuration of `RoutePrefix` EndpointMapper uses a minimal api
 > group to map all your endpoint, you could cast the type back to `RouteGroupBuilder` using an hard cast and use the
 > builder to, for example, configure the group with some behaviour settings, for example setting a default output cache 
-> policy, although this is NOT encouraged because it can be pretty easy to forget about this code
-> and since it's in a endpoint class you are configuring the group from and endpoint witch is not that great, since
+> policy, although this is NOT encouraged because you can easily forget about it after setting it up
+> and since it's in an endpoint class you are configuring the group from an endpoint, which is not that great, since
 > you may still want to configure some behaviour in the group, in the `.AddEndpointMapper()` call you can pass an 
-> action witch gives you the ability to configure EndpointMapper configuration and in there you can set the 
+> action witch gives you the ability to configure the EndpointMapper configuration and in there you can set the 
 > `ConfigureGroupBuilder` action to configure the group, it gives you the full `RouteGroupBuilder` without having to
-> cast it and it wont "belong" to any Endpoint that may be deleted later for any reason
+> cast it and it won't "belong" to any Endpoint that may be deleted later for any reason
 
 ### Create your own `EndpointConfigurationAttribute`
 
@@ -306,5 +307,5 @@ Simple create a class that extends `EndpointConfigurationAttribute`
 ### Create your own `HttpMapAttribute`
 
 Simple create a class that extends `HttpMapAttribute` and use `: base()` on the constructor to pass the route(s)
-and overload the `Methods` propriety to set the list of HTTP Verb that the attribute correspond to, the verb MUST be 
+and overload the `Methods` properties to set the list of HTTP Verb that the attributes correspond to, the verb MUST be 
 supported by ASP.NET or else it wont work, the rest is handled automatically
