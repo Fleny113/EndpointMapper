@@ -1,7 +1,6 @@
 ﻿#pragma warning disable IDE0130 // Namespace does not match the folder structure
 
 using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
 
 namespace EndpointMapper;
 
@@ -9,14 +8,13 @@ namespace EndpointMapper;
 /// Map an endpoint to a specific HTTP Method and Route
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
-[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class HttpMapAttribute : Attribute
 {
     /// <summary>
     /// HTTP Verbs to be used when mapping the endpoint
     /// </summary>
     public abstract IEnumerable<string> Methods { get; }
-    
+
     /// <summary>
     /// HTTP Routes that the endpoint will map to
     /// </summary>

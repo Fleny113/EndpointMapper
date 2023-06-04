@@ -1,12 +1,10 @@
-﻿using JetBrains.Annotations;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 
 namespace EndpointMapper;
 
 /// <summary>
 /// Interface to implement for the AssemblyScanner to detect the ConfigurationAttribute
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.WithMembers)]
 public abstract class EndpointConfigurationAttribute : Attribute
 {
     /// <summary>

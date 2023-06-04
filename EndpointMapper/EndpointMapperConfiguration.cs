@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EndpointMapper;
 
@@ -10,18 +11,16 @@ public sealed record EndpointMapperConfiguration
     /// <summary>
     /// Prefix of all routes mapped from EndpointMapper, default: /
     /// </summary>
-    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
+    [StringSyntax("Route")]
     public required string RoutePrefix { get; set; } = "/";
-    
+
     /// <summary>
     /// Action used to configure the GroupBuilder used to register the routes
     /// </summary>
-    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
-    public required Action<RouteGroupBuilder> ConfigureGroupBuilder { get; set; } = _ => {};
+    public required Action<RouteGroupBuilder> ConfigureGroupBuilder { get; set; } = _ => { };
 
     /// <summary>
     /// Chose if print the time took to initialize EndpointMapper, default: false
     /// </summary>
-    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
     public required bool LogTimeTookToInitialize { get; set; } = false;
 }

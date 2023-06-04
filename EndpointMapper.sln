@@ -3,17 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointMapper", "EndpointMapper\EndpointMapper.csproj", "{03AFFD98-13DE-474D-B37C-B413A532C7C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EndpointMapper", "EndpointMapper\EndpointMapper.csproj", "{03AFFD98-13DE-474D-B37C-B413A532C7C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointMapper.TestApplication", "EndpointMapper.TestApplication\EndpointMapper.TestApplication.csproj", "{9F4F3440-2AF8-4E67-BF37-57763ABD89E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EndpointMapper.TestApplication", "EndpointMapper.TestApplication\EndpointMapper.TestApplication.csproj", "{9F4F3440-2AF8-4E67-BF37-57763ABD89E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{03AFFD98-13DE-474D-B37C-B413A532C7C5} = {03AFFD98-13DE-474D-B37C-B413A532C7C5}
+		{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A} = {CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointMapper.OpenApi", "EndpointMapper.OpenApi\EndpointMapper.OpenApi.csproj", "{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{03AFFD98-13DE-474D-B37C-B413A532C7C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +27,15 @@ Global
 		{9F4F3440-2AF8-4E67-BF37-57763ABD89E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F4F3440-2AF8-4E67-BF37-57763ABD89E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F4F3440-2AF8-4E67-BF37-57763ABD89E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC1261F7-3BCE-4C68-8CC3-02DBED4AB17A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFF89CB7-A3A5-4811-86A7-A01536530F08}
 	EndGlobalSection
 EndGlobal

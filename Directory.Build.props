@@ -1,0 +1,8 @@
+<Project>
+    <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+    <PropertyGroup>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <NuGetAudit>true</NuGetAudit>
+        <Version>2.0.0-prerelease.2</Version>
+    </PropertyGroup>
+</Project>

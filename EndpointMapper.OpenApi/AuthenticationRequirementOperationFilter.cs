@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace EndpointMapper;
+namespace EndpointMapper.OpenApi;
 
 /// <summary>
 /// Swashbuckle.AspNetCore Operation Filter to map <see cref="AuthorizeAttribute"/> from endpoints
 /// </summary>
-// ReSharper disable once ClassNeverInstantiated.Global
 public sealed class AuthenticationRequirementOperationFilter : IOperationFilter
 {
     private readonly string? _defaultSchema;
@@ -40,7 +39,7 @@ public sealed class AuthenticationRequirementOperationFilter : IOperationFilter
 
         if (auth is null)
             return;
-        
+
         var authenticationSchemes = auth.AuthenticationSchemes ?? _defaultSchema;
 
         var scheme = new OpenApiSecurityScheme
@@ -51,7 +50,7 @@ public sealed class AuthenticationRequirementOperationFilter : IOperationFilter
                 Id = authenticationSchemes
             }
         };
-        
+
         operation.Security.Add(new OpenApiSecurityRequirement
         {
             {scheme, Array.Empty<string>()}

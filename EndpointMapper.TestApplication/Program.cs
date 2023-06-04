@@ -1,6 +1,7 @@
-using System.Reflection;
 using EndpointMapper;
+using EndpointMapper.OpenApi;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +30,9 @@ builder.Services.AddSwaggerGen(config =>
         In = ParameterLocation.Header,
         Scheme = "Bearer"
     });
-    
+
     config.OperationFilter<AuthenticationRequirementOperationFilter>();
-    
+
     // Get the XML file path from the Assembly
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 

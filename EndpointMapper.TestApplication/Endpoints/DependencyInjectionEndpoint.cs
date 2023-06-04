@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 
-namespace EndpointMapper.TestApplication;
+namespace EndpointMapper.TestApplication.Endpoints;
 
 public sealed class DependencyInjectionEndpoint : IEndpoint
 {
@@ -12,14 +12,8 @@ public sealed class DependencyInjectionEndpoint : IEndpoint
         _configuration = endpointMapperOptions.Value;
     }
 
-    public void Configure(RouteHandlerBuilder builder)
-    {
-        builder.CacheOutput(x => x.Expire(TimeSpan.FromSeconds(10)));
-    }
+    public void Configure(RouteHandlerBuilder builder) => builder.CacheOutput(x => x.Expire(TimeSpan.FromSeconds(10)));
 
     [HttpMapGet("/di")]
-    public Ok<string> Handle()
-    {
-        return TypedResults.Ok(_configuration.RoutePrefix);
-    }
+    public Ok<string> Handle() => TypedResults.Ok(_configuration.RoutePrefix);
 }

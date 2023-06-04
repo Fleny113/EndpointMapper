@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace EndpointMapper.TestApplication;
+namespace EndpointMapper.TestApplication.Endpoints;
 
 public class MultiEndpoint : IEndpoint
 {
@@ -29,14 +29,8 @@ public class MultiEndpoint : IEndpoint
     }
 
     [HttpMapGet("/multi", "/multi/2"), HttpMapDelete("/multi", "/multi/2")]
-    public Ok<string> Handle(HttpContext context)
-    {
-        return TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(Handle)}(HttpContext)");
-    }
-    
+    public Ok<string> Handle(HttpContext context) => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(Handle)}(HttpContext)");
+
     [HttpMapPost("/multi/3")]
-    public Ok<string> HandleButDifferent(HttpContext context)
-    {
-        return TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
-    }
+    public Ok<string> HandleButDifferent(HttpContext context) => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
 }

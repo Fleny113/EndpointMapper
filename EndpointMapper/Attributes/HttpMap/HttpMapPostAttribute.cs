@@ -12,7 +12,7 @@ public sealed class HttpMapPostAttribute : HttpMapAttribute
 {
     /// <inheritdoc />
     public override IEnumerable<string> Methods => new[] { HttpMethod.Post.Method };
-    
+
     /// <summary>
     /// Map route(s) to the POST Http Verb
     /// </summary>

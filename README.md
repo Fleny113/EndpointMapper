@@ -115,8 +115,7 @@ don't want to use the constructor based DI then you can pass a `false` to the me
 
 ## OpenAPI support (swagger)
 
-EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], but its support is out-of-the-box and doesn't require
-any additional package to work (except `Swashbuckle.AspNetCore`, obviously)
+EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], and you will need to add the EndpointMapper.OpenApi package
 
 > **Warning**
 > For [authentication](#authentication-requirements) or [XML documentation](#xml-documentation) you may need to add 
@@ -157,7 +156,7 @@ If you have authentication in your application you need to let swagger know how 
 need to add to the `.AddSwaggerGen()` call the registration of Security Definition and if you use the ASP.NET
 `[Authorize]` attribute you may also need to add some code to detect the attribute and add the requirement
 
-EndpointMapper provides you an operation filter to add those requirements automatically when it detects the
+EndpointMapper.OpenApi provides you an operation filter to add those requirements automatically when it detects the
 `[Authorize]` attribute, if you manually check for authentication using a Filter or something else then this is not
 needed, and you will need something else to add the requirements
 

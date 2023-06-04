@@ -1,4 +1,4 @@
-namespace EndpointMapper.TestApplication;
+namespace EndpointMapper.TestApplication.Endpoints;
 
 public class WeatherForecastEndpoint : IEndpoint
 {

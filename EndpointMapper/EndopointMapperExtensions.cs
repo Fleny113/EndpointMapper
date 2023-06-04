@@ -1,13 +1,12 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 
 namespace EndpointMapper;
 
@@ -27,7 +26,6 @@ public static class EndpointMapperExtensions
     /// <param name="services"><see cref="IServiceCollection"/></param>
     /// <param name="configure">Configure the options for EndpointMapper</param>
     /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper<T>(this IServiceCollection services,
         Action<EndpointMapperConfiguration>? configure = null)
         => services.AddEndpointMapper(configure, typeof(T).Assembly);
@@ -39,7 +37,6 @@ public static class EndpointMapperExtensions
     /// <param name="configure">Configure the options for EndpointMapper</param>
     /// <param name="markers">Array of Type for AssemblyScanning</param>
     /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services,
         Action<EndpointMapperConfiguration>? configure = null,
         params Type[] markers)
@@ -52,7 +49,6 @@ public static class EndpointMapperExtensions
     /// <param name="configure">Configure the options for EndpointMapper</param>
     /// <param name="assemblies">Array of Assembly for AssemblyScanning</param>
     /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-    [UsedImplicitly]
     public static IServiceCollection AddEndpointMapper(this IServiceCollection services,
         Action<EndpointMapperConfiguration>? configure = null,
         params Assembly[] assemblies)
@@ -88,15 +84,14 @@ public static class EndpointMapperExtensions
     /// <param name="app"><see cref="WebApplication"/> instance</param>
     /// <param name="addMiddleware">Add or not the middleware for the constructor based DI resolution, default: true</param>
     /// <returns>The <see cref="WebApplication"/> instance for chaining methods</returns>
-    [UsedImplicitly]
     public static WebApplication UseEndpointMapper(this WebApplication app, bool addMiddleware = true)
     {
         var startTime = Stopwatch.GetTimestamp();
-        
+
         var options = app.Services.GetRequiredService<IOptions<EndpointMapperConfiguration>>();
         var logger = app.Services.GetRequiredService<ILogger<StartupTimer>>();
-        
-        try 
+
+        try
         {
             if (addMiddleware)
                 app.UseMiddleware<EndpointMapperMiddleware>();
@@ -128,18 +123,18 @@ public static class EndpointMapperExtensions
             {
                 var timeTook = Stopwatch.GetElapsedTime(startTime);
                 var totalTimeTook = _timeTookToFindEndpoints + timeTook;
-            
+
                 logger.LogTrace("Finding {Count} endpoint classes took: {Time}ms",
                     _endpointTypes.Length,
                     _timeTookToFindEndpoints.Milliseconds);
 
-                logger.LogTrace("Registering {Count} route took: {Time}ms", 
-                    _endpointFound, 
+                logger.LogTrace("Registering {Count} route took: {Time}ms",
+                    _endpointFound,
                     timeTook.Milliseconds);
 
                 logger.LogDebug("Registering {Count} endpoints took: {Time}ms",
                     _endpointFound,
-                    totalTimeTook.Milliseconds);   
+                    totalTimeTook.Milliseconds);
             }
         }
     }
@@ -153,7 +148,7 @@ public static class EndpointMapperExtensions
         foreach (var methodInfo in methods)
         {
             var httpMapAttributes = methodInfo.GetCustomAttributes<HttpMapAttribute>(false);
-        
+
             foreach (var httpMapAttribute in httpMapAttributes)
             {
                 MapEndpoints(builder, endpoint, methodInfo, httpMapAttribute);
@@ -172,7 +167,7 @@ public static class EndpointMapperExtensions
                 .WithMetadata(endpoint);
 
             _endpointFound++;
-            
+
             // Configure the endpoint based on the attributes on it
             //  this only checks for the attribute implementing IEndpointConfigurationAttribute
             //  not the one from ASP.NET core
@@ -180,7 +175,7 @@ public static class EndpointMapperExtensions
 
             foreach (var configurationAttribute in configurationAttributes)
                 configurationAttribute.Configure(builder);
-            
+
             // Configure the endpoint based on the configure method defined in the class
             endpoint.Configure(builder, route, attribute.Methods, method);
         }
@@ -193,7 +188,7 @@ public static class EndpointMapperExtensions
         var delegateType = methodInfo.ReturnType switch
         {
             _ when methodInfo.ReturnType == typeof(void) => Expression.GetActionType(paramsType.ToArray()),
-            _ => Expression.GetFuncType(paramsType.Concat(new [] { methodInfo.ReturnType }).ToArray())
+            _ => Expression.GetFuncType(paramsType.Concat(new[] { methodInfo.ReturnType }).ToArray())
         };
 
         return methodInfo.IsStatic

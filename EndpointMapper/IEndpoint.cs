@@ -1,15 +1,13 @@
-﻿using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Reflection;
 
 namespace EndpointMapper;
 
 /// <summary>
 /// Interface to implement for the AssemblyScanner to detect and add your endpoint(s)
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.WithMembers)]
 public interface IEndpoint
 {
     /// <summary>
@@ -35,11 +33,8 @@ public interface IEndpoint
     /// <param name="route">Route of the handler currently being configured</param>
     /// <param name="methods">HTTP Verbs of the handler currently being configured</param>
     /// <param name="method">Method information about the method currently under configure</param>
-    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods, MethodInfo method)
-    {
-        Configure(builder, route, methods);
-    }
-    
+    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods, MethodInfo method) => Configure(builder, route, methods);
+
     /// <summary>
     /// Use the <see cref="RouteHandlerBuilder"/> to configure the endpoint created in the class
     /// </summary>
@@ -54,11 +49,8 @@ public interface IEndpoint
     /// </param>
     /// <param name="route">Route of the handler currently being configured</param>
     /// <param name="methods">HTTP Verbs of the handler currently being configured</param>
-    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods)
-    {
-        Configure(builder, route);
-    }
-    
+    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods) => Configure(builder, route);
+
     /// <summary>
     /// Use the <see cref="RouteHandlerBuilder"/> to configure the endpoint created in the class
     /// </summary>
@@ -72,10 +64,7 @@ public interface IEndpoint
     /// for example
     /// </param>
     /// <param name="route">Route of the handler currently being configured</param>
-    public void Configure(RouteHandlerBuilder builder, string route)
-    {
-        Configure(builder);
-    }
+    public void Configure(RouteHandlerBuilder builder, string route) => Configure(builder);
 
     /// <summary>
     /// Use the <see cref="RouteHandlerBuilder"/> to configure the endpoint created in the class

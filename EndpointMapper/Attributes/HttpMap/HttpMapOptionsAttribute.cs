@@ -21,5 +21,3 @@ public sealed class HttpMapOptionsAttribute : HttpMapAttribute
     {
     }
 }
-
-

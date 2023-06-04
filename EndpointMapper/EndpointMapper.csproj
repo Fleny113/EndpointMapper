@@ -17,11 +17,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2.0.0-prerelease.2</Version>
-		
-		<DefineConstants>JETBRAINS_ANNOTATIONS</DefineConstants>
 	</PropertyGroup>
-
 
 	<ItemGroup>
 		<None Include="..\README.md">
@@ -32,10 +28,6 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-
-		<PackageReference Include="Microsoft.OpenApi" Version="1.6.3" />
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
-		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
 	</ItemGroup>
 
 </Project>
