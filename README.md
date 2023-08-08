@@ -24,10 +24,10 @@ Add this into the `Program.cs`
 Then create a public class that implements `IEndpoint` and add a method with attribute `HttpMapGet`
 or one of the variants for each HTTP verb
 
-> **Note**:
+> **Note**
 > see [Samples](#sample) for an example
 
-> **Note**:
+> **Note**
 >
 > If you want to use bind parameters to the method function [see this section](#parameters-binding-and-function-return)
 >
@@ -67,7 +67,7 @@ public class ExampleEndpoint : IEndpoint
     }
 }
 ```
-> **Note**:
+> **Note**
 > If you want to bind values from the request into the params of the request see [this](#parameters-binding-and-function-return)
 
 ---
