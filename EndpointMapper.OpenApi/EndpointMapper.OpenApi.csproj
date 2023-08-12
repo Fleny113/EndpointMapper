@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Fleny</Authors>
-        <Description>Endpoint Mapper for ASP.NET Core 7</Description>
+        <Description>Endpoint Mapper for ASP.NET Core 8</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -17,6 +17,7 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api, openapi, swagger</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
 

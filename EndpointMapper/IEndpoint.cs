@@ -31,9 +31,9 @@ public interface IEndpoint
     /// for example
     /// </param>
     /// <param name="route">Route of the handler currently being configured</param>
-    /// <param name="methods">HTTP Verbs of the handler currently being configured</param>
-    /// <param name="method">Method information about the method currently under configure</param>
-    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods, MethodInfo method) => Configure(builder, route, methods);
+    /// <param name="method">HTTP Verbs of the handler currently being configured</param>
+    /// <param name="methodInfo">Method information about the method currently under configure</param>
+    public void Configure(RouteHandlerBuilder builder, string route, string method, MethodInfo methodInfo) => Configure(builder, route, method);
 
     /// <summary>
     /// Use the <see cref="RouteHandlerBuilder"/> to configure the endpoint created in the class
@@ -48,8 +48,8 @@ public interface IEndpoint
     /// for example
     /// </param>
     /// <param name="route">Route of the handler currently being configured</param>
-    /// <param name="methods">HTTP Verbs of the handler currently being configured</param>
-    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods) => Configure(builder, route);
+    /// <param name="method">HTTP Verbs of the handler currently being configured</param>
+    public void Configure(RouteHandlerBuilder builder, string route, string method) => Configure(builder, route);
 
     /// <summary>
     /// Use the <see cref="RouteHandlerBuilder"/> to configure the endpoint created in the class

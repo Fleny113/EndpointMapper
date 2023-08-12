@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace EndpointMapper;
 /// <summary>
 /// Extensions from EndpointMapper
 /// </summary>
-public static class EndpointMapperExtensions
+public static partial class EndpointMapperExtensions
 {
     private static Type[] _endpointTypes = Array.Empty<Type>();
     private static int _endpointFound;
@@ -79,11 +80,13 @@ public static class EndpointMapperExtensions
     }
 
     /// <summary>
-    /// Register middleware into the Request Pipeline and map all endpoints as ASP.NET Core Minimal Apis
+    /// Register middleware into the Request Pipeline and map all endpoints as ASP.NET Core Minimal APIs
     /// </summary>
     /// <param name="app"><see cref="WebApplication"/> instance</param>
     /// <param name="addMiddleware">Add or not the middleware for the constructor based DI resolution, default: true</param>
     /// <returns>The <see cref="WebApplication"/> instance for chaining methods</returns>
+    [RequiresUnreferencedCode("Calls EndpointMapper.EndpointMapperExtensions.FindEndpoints(IEndpoint, IEndpointRouteBuilder)")]
+    [RequiresDynamicCode("Calls EndpointMapper.EndpointMapperExtensions.FindEndpoints(IEndpoint, IEndpointRouteBuilder)")]
     public static WebApplication UseEndpointMapper(this WebApplication app, bool addMiddleware = true)
     {
         var startTime = Stopwatch.GetTimestamp();
@@ -139,6 +142,8 @@ public static class EndpointMapperExtensions
         }
     }
 
+    [RequiresUnreferencedCode("Calls EndpointMapper.EndpointMapperExtensions.MapEndpoints(IEndpointRouteBuilder, IEndpoint, MethodInfo, HttpMapAttribute)")]
+    [RequiresDynamicCode("Calls EndpointMapper.EndpointMapperExtensions.MapEndpoints(IEndpointRouteBuilder, IEndpoint, MethodInfo, HttpMapAttribute)")]
     private static void FindEndpoints(IEndpoint endpoint, IEndpointRouteBuilder builder)
     {
         var methods = endpoint
@@ -156,6 +161,8 @@ public static class EndpointMapperExtensions
         }
     }
 
+    [RequiresUnreferencedCode("Calls Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.MapMethods(String, IEnumerable<String>, Delegate)")]
+    [RequiresDynamicCode("Calls Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.MapMethods(String, IEnumerable<String>, Delegate)")]
     private static void MapEndpoints(IEndpointRouteBuilder group,
         IEndpoint endpoint,
         MethodInfo method,
@@ -163,7 +170,7 @@ public static class EndpointMapperExtensions
     {
         foreach (var route in attribute.Routes)
         {
-            var builder = group.MapMethods(route, attribute.Methods, method.CreateDelegate(endpoint))
+            var builder = group.MapMethods(route, new string[] { attribute.Method }, method.CreateDelegate(endpoint))
                 .WithMetadata(endpoint);
 
             _endpointFound++;
@@ -177,7 +184,7 @@ public static class EndpointMapperExtensions
                 configurationAttribute.Configure(builder);
 
             // Configure the endpoint based on the configure method defined in the class
-            endpoint.Configure(builder, route, attribute.Methods, method);
+            endpoint.Configure(builder, route, attribute.Method, method);
         }
     }
 

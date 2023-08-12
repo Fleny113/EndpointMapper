@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EndpointMapper;
 
@@ -10,7 +11,7 @@ namespace EndpointMapper;
 /// </summary>
 /// <typeparam name="TFilter">Type of the <see cref="IEndpointFilter"/> to apply</typeparam>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-public sealed class FilterAttribute<TFilter> : EndpointConfigurationAttribute where TFilter : IEndpointFilter
+public sealed class FilterAttribute<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TFilter> : EndpointConfigurationAttribute where TFilter : IEndpointFilter
 {
     /// <summary>
     /// Configure a route using the <see cref="RouteHandlerBuilder"/>
