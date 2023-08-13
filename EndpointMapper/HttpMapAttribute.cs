@@ -1,13 +1,11 @@
-﻿#pragma warning disable IDE0130 // Namespace does not match the folder structure
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace EndpointMapper;
 
 /// <summary>
 /// Map an endpoint to a specific HTTP Method and Route
 /// </summary>
-[AttributeUsage(AttributeTargets.Method, Inherited = false)]
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 public class HttpMapAttribute : Attribute
 {
     /// <summary>

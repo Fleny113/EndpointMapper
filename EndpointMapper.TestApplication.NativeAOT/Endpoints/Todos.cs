@@ -2,8 +2,8 @@
 
 public class Todos : IEndpoint
 {
-    [HttpMap(HttpMapMethod.Get, "/todos")]
-    public Todo[]? GetTodos()
+    [HttpMap(HttpMapMethod.Get, "/todos", "/maybe"), HttpMap(HttpMapMethod.Trace, "/opts")]
+    public static Todo[]? NoTodos()
     {
         return new Todo[] {
             new(1, "Walk the dog"),
