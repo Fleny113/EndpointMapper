@@ -8,6 +8,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
 });
 
+builder.Services.AddSingleton("Hi World");
+
 var app = builder.Build();
 
 ConsoleApp.Program.HelloFrom(app, true);
@@ -32,7 +34,7 @@ todosApi.MapGet("/{id}", (int id) =>
 app.Run();
 
 [JsonSerializable(typeof(Todo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext {}
+internal partial class AppJsonSerializerContext : JsonSerializerContext { }
 
 namespace ConsoleApp
 {
