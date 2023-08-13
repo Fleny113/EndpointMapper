@@ -1,4 +1,6 @@
-﻿namespace EndpointMapper.TestApplication.NativeAOT.Endpoints;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace EndpointMapper.TestApplication.NativeAOT.Endpoints;
 
 public class Todos : IEndpoint
 {
@@ -22,15 +24,15 @@ public class Todos : IEndpoint
     }
 
     [HttpMap(HttpMapMethod.Post, "/idk")]
-    public string Hi()
+    public string Hi([FromServices] string idkSomeValue)
     {
-        return "Hi! I'm being mapped by the source generator!!!";
+        return $"Hi! I'm an Instance Method and the _idkSomeValue has value: {idkSomeValue} [ASP.NET Minimal Api DI]";
     }
 
     [HttpMap(HttpMapMethod.Post, "/idk2")]
     public string Hi2()
     {
-        return $"Hi! I'm an Instance Method and the _idkSomeValue has value: {_idkSomeValue}";
+        return $"Hi! I'm an Instance Method and the _idkSomeValue has value: {_idkSomeValue} [Constructor DI]";
     }
 }
 
