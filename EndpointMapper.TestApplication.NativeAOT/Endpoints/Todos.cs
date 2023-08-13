@@ -4,13 +4,6 @@ namespace EndpointMapper.TestApplication.NativeAOT.Endpoints;
 
 public class Todos : IEndpoint
 {
-    private readonly string _idkSomeValue;
-
-    public Todos(string idkSomeValue)
-    {
-        _idkSomeValue = idkSomeValue;
-    }
-
     [HttpMap(HttpMapMethod.Get, "/todos", "/maybe"), HttpMap(HttpMapMethod.Trace, "/opts")]
     public static Todo[]? NoTodos()
     {
@@ -24,23 +17,51 @@ public class Todos : IEndpoint
     }
 
     [HttpMap(HttpMapMethod.Post, "/idk")]
-    public string Hi([FromServices] string idkSomeValue)
+    public static string Hi([FromServices] string idkSomeValue)
     {
-        return $"Hi! I'm an Instance Method and the _idkSomeValue has value: {idkSomeValue} [ASP.NET Minimal Api DI]";
-    }
-
-    [HttpMap(HttpMapMethod.Post, "/idk2")]
-    public string Hi2()
-    {
-        return $"Hi! I'm an Instance Method and the _idkSomeValue has value: {_idkSomeValue} [Constructor DI]";
+        return $"Hi! I'm an Static Method and the _idkSomeValue has value: {idkSomeValue} [ASP.NET Minimal Api DI]";
     }
 }
 
-public class Test : IEndpoint
+public class Test : IEndpoint, IRegisterEndpoint
 {
-    [HttpMap(HttpMapMethod.Get, "/hi")]
-    public string Hi()
+    [HttpMap(HttpMapMethod.Get, "/hi/test")]
+    public static string Hi()
     {
-        return "Hi from the Test class!";
+        return "Hi from the Test1 class!";
+    }
+
+    public static void Register(IEndpointRouteBuilder builder)
+    {
+    }
+}
+
+public class Test2 : IEndpoint, IConfigureEndpoint
+{
+    public static void Configure(RouteHandlerBuilder builder, string route, string method)
+    {
+    }
+
+    [HttpMap(HttpMapMethod.Get, "/hi/test2")]
+    public static string Hi()
+    {
+        return "Hi from the Test2 class!";
+    }
+}
+
+public class Test3 : IEndpoint, IRegisterEndpoint, IConfigureEndpoint
+{
+    public static void Configure(RouteHandlerBuilder builder, string route, string method)
+    {
+    }
+
+    public static void Register(IEndpointRouteBuilder builder)
+    {
+    }
+
+    [HttpMap(HttpMapMethod.Get, "/hi/test3")]
+    public static string Hi()
+    {
+        return "Hi from the Test3 class!";
     }
 }

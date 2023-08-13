@@ -5,7 +5,7 @@ namespace EndpointMapper;
 /// <summary>
 /// Interface to implement for the AssemblyScanner to detect the ConfigurationAttribute
 /// </summary>
-public abstract class EndpointConfigurationAttribute : Attribute
+public interface IEndpointConfiguration
 {
     /// <summary>
     /// Do extra configuration with the <see cref="RouteHandlerBuilder"/> of a route

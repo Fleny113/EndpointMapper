@@ -17,7 +17,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<IsAotCompatible>false</IsAotCompatible>
+		<IsAotCompatible>true</IsAotCompatible>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 	</PropertyGroup>
 

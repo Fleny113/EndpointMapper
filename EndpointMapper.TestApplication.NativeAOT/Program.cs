@@ -1,3 +1,4 @@
+using ConsoleApp;
 using EndpointMapper.TestApplication.NativeAOT;
 using System.Text.Json.Serialization;
 
@@ -12,7 +13,7 @@ builder.Services.AddSingleton("Hi World");
 
 var app = builder.Build();
 
-ConsoleApp.Program.HelloFrom(app, true);
+app.MapEndpointMapperEndpoints();
 
 var sampleTodos = new Todo[] {
     new(1, "Walk the dog"),
@@ -26,10 +27,10 @@ var todosApi = app.MapGroup("/todos");
 
 // todosApi.MapGet("/", () => sampleTodos);
 
-todosApi.MapGet("/{id}", (int id) =>
-    sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
-        ? Results.Ok(todo)
-        : Results.NotFound());
+// todosApi.MapGet("/{id}", (int id) =>
+//     sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
+//         ? Results.Ok(todo)
+//         : Results.NotFound());
 
 app.Run();
 
@@ -38,8 +39,8 @@ internal partial class AppJsonSerializerContext : JsonSerializerContext { }
 
 namespace ConsoleApp
 {
-    public partial class Program
+    public static partial class Program
     {
-        public static partial WebApplication HelloFrom(WebApplication app, bool addMiddleware = true);
+        public static partial WebApplication MapEndpointMapperEndpoints(this WebApplication app);
     }
 }
