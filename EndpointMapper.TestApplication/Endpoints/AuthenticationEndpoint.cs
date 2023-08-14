@@ -6,9 +6,9 @@ namespace EndpointMapper.TestApplication.Endpoints;
 
 public class AuthenticationEndpoint : IEndpoint
 {
-    [HttpMapGet("/auth"), Authorize]
-    public Ok<string> Handle(ClaimsPrincipal user) => TypedResults.Ok($"Hello {user.Identity?.Name}");
+    [HttpMap(HttpMapMethod.Get, "/auth"), Authorize]
+    public static Ok<string> Handle(ClaimsPrincipal user) => TypedResults.Ok($"Hello {user.Identity?.Name}");
 
-    [HttpMapGet("/auth/2"), Authorize(AuthenticationSchemes = "AnotherJWT")]
-    public Ok<string> HandleWithAnotherAuthScheme(ClaimsPrincipal user) => TypedResults.Ok($"Hello {user.Identity?.Name}");
+    [HttpMap(HttpMapMethod.Get, "/auth/2"), Authorize(AuthenticationSchemes = "AnotherJWT")]
+    public static Ok<string> HandleWithAnotherAuthScheme(ClaimsPrincipal user) => TypedResults.Ok($"Hello {user.Identity?.Name}");
 }

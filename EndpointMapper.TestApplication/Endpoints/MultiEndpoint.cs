@@ -6,11 +6,11 @@ using System.Text.Json;
 
 namespace EndpointMapper.TestApplication.Endpoints;
 
-public class MultiEndpoint : IEndpoint
+public class MultiEndpoint : IEndpoint, IConfigureEndpoint
 {
-    public void Configure(RouteHandlerBuilder builder, string route, IEnumerable<string> methods, MethodInfo method)
+    public static void Configure(RouteHandlerBuilder builder, string route, string method)
     {
-        Debug.WriteLine($"Processing {route}, for verbs {JsonSerializer.Serialize(methods)} for method {method.Name}");
+        Debug.WriteLine($"Processing {route}, for verb {method}");
 
         switch (route)
         {
@@ -28,9 +28,11 @@ public class MultiEndpoint : IEndpoint
         }
     }
 
-    [HttpMapGet("/multi", "/multi/2"), HttpMapDelete("/multi", "/multi/2")]
-    public Ok<string> Handle(HttpContext context) => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(Handle)}(HttpContext)");
+    [HttpMap(HttpMapMethod.Get, "/multi", "/multi/2"), HttpMap(HttpMapMethod.Delete, "/multi/2")]
+    public static Ok<string> Handle(HttpContext context) 
+        => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(Handle)}(HttpContext)");
 
-    [HttpMapPost("/multi/3")]
-    public Ok<string> HandleButDifferent(HttpContext context) => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
+    [HttpMap(HttpMapMethod.Post, "/multi/3")]
+    public static Ok<string> HandleButDifferent(HttpContext context) 
+        => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
 }

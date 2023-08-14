@@ -40,15 +40,6 @@ builder.Services.AddSwaggerGen(config =>
     config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
 });
 
-builder.Services.AddEndpointMapper<Program>(config =>
-{
-    config.RoutePrefix = "/api";
-    config.ConfigureGroupBuilder = groupBuilder =>
-    {
-        groupBuilder.MapDelete("/helloWorld", () => "Hello World!");
-    };
-});
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -59,6 +50,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseOutputCache();
 
-app.UseEndpointMapper();
+var apiGroup = app.MapGroup("/api");
+
+apiGroup.MapDelete("/helloWorld", () => "Hello World!");
+apiGroup.MapEndpointMapperEndpoints();
 
 app.Run();

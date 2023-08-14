@@ -7,9 +7,8 @@ public class WeatherForecastEndpoint : IEndpoint
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
-    [HttpMapGet("/weatherforecast")]
-    [EndpointName("GetWeatherForecast")]
-    public WeatherForecast[] Handle()
+    [HttpMap(HttpMapMethod.Get, "/weatherForecast"), EndpointName("GetWeatherForecast")]
+    public static WeatherForecast[] Handle()
     {
         var forecast = Enumerable.Range(1, 5).Select(index => new WeatherForecast(
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

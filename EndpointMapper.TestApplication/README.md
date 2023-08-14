@@ -24,7 +24,7 @@ library during development and providing a few examples of the Developer Experie
 
 ## Generate JWT(s) for testing Authentication
 
-You can use the build-in dotnet tool user-jwts
+You can use the build-in `dotnet tool user-jwts`
 
 ```sh
 # using the default scheme (Bearer)
