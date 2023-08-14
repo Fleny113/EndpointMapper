@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Routing;
 namespace EndpointMapper;
 
 /// <summary>
-/// Interface to implement for the AssemblyScanner to detect and add your endpoint(s)
+/// Interface to detect and add your endpoint(s)
 /// </summary>
 public interface IEndpoint
 {
@@ -19,7 +19,7 @@ public interface IRegisterEndpoint
     /// <summary>
     /// Use the <see cref="IEndpointRouteBuilder"/> to map and configure the routes into the endpoint
     /// </summary>
-    /// <param name="builder"><see cref="IEndpointRouteBuilder"/>  to register and configure the route(s)</param>
+    /// <param name="builder"><see cref="IEndpointRouteBuilder"/> to register and configure the route(s)</param>
     public static abstract void Register(IEndpointRouteBuilder builder);
 }
 

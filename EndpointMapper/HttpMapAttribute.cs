@@ -6,7 +6,7 @@ namespace EndpointMapper;
 /// Map an endpoint to a specific HTTP Method and Route
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-public class HttpMapAttribute : Attribute
+public sealed class HttpMapAttribute : Attribute
 {
     /// <summary>
     /// HTTP Verbs to be used when mapping the endpoint
