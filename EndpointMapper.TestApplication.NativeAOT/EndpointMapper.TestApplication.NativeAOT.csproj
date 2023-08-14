@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
+    
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -9,11 +9,18 @@
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     <LangVersion>preview</LangVersion>
     <Features>InterceptorsPreview</Features>
+     
+    <UseLocalProjects>true</UseLocalProjects>
   </PropertyGroup>
-
-  <ItemGroup>
-      <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    
+  <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
+    <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\EndpointMapper\EndpointMapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalProjects)' == 'false'">
+    <!-- This requires to setup a nuget source in the artifacts/package/<Configuration> or else it will use Nuget -->
+    <PackageReference Include="EndpointMapper" Version="$(Version)" />
   </ItemGroup>
 
 </Project>

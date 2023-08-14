@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Fleny</Authors>
-        <Description>Endpoint Mapper for ASP.NET Core 8</Description>
+        <Description>Endpoint Mapper Swagger Support for ASP.NET Core 8</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -15,7 +15,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api, openapi, swagger</PackageTags>
+        <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet8, openapi, swagger</PackageTags>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>

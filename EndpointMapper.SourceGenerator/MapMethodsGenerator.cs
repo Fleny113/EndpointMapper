@@ -137,7 +137,7 @@ public class MapMethodsGenerator : IIncrementalGenerator
 
             namespace EndpointMapper.SourceGenerator
             {
-                public static class EndpointMapperExtensions
+                file static class EndpointMapperExtensions
                 {
                     private static readonly string[] ConnectVerb = new[] { "CONNECT" };
                     private static readonly string[] HeadVerb = new[] { "HEAD" };

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -15,10 +14,9 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet7, minimal-api</PackageTags>
+		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet8, minimal-api, sourcegenerators, source-generators</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IsAotCompatible>true</IsAotCompatible>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,6 +28,8 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
 
+		<ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" ReferenceOutputAssembly="false" />
+		<None Include="$(OutputPath)\..\..\EndpointMapper.SourceGenerator\$(Configuration)\EndpointMapper.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
 </Project>
