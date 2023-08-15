@@ -7,7 +7,6 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
         <UserSecretsId>13569b70-51a9-4c29-bf40-38bf263f5f1b</UserSecretsId>
-        <LangVersion>preview</LangVersion>
         <Features>InterceptorsPreview</Features>
     </PropertyGroup>
 

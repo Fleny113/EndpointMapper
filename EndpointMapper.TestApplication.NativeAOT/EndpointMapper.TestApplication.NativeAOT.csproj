@@ -7,7 +7,6 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <PublishAot>true</PublishAot>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-    <LangVersion>preview</LangVersion>
     <Features>InterceptorsPreview</Features>
      
     <UseLocalProjects>true</UseLocalProjects>

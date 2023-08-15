@@ -42,17 +42,17 @@ public class MapMethodsGenerator : IIncrementalGenerator
 
     private static EndpointClassInformation SyntaxProviderEndpointTransformer(GeneratorSyntaxContext context, CancellationToken ct)
     {
-        var classSymbol = context.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax) context.Node);
+        var classSymbol = context.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax)context.Node);
 
         var endpointInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IEndpoint");
         var endpointRegisterInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IRegisterEndpoint");
         var endpointConfigureInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IConfigureEndpoint");
 
         if (
-            classSymbol is null || 
-            endpointInterface is null || 
-            endpointRegisterInterface is null || 
-            endpointConfigureInterface is null || 
+            classSymbol is null ||
+            endpointInterface is null ||
+            endpointRegisterInterface is null ||
+            endpointConfigureInterface is null ||
             !classSymbol.Interfaces.Contains(endpointInterface)
         )
             return (Array.Empty<IMethodSymbol>(), false, false);
@@ -72,7 +72,7 @@ public class MapMethodsGenerator : IIncrementalGenerator
 
     private static Location SyntaxProviderLocationTransformer(GeneratorSyntaxContext context, CancellationToken ct)
     {
-        var invocationExpression = (InvocationExpressionSyntax) context.Node;
+        var invocationExpression = (InvocationExpressionSyntax)context.Node;
 
         var invocationSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression);
 
@@ -90,7 +90,7 @@ public class MapMethodsGenerator : IIncrementalGenerator
         )
             return null!;
 
-        var memberAccessExpression = (MemberAccessExpressionSyntax) invocationExpression.Expression;
+        var memberAccessExpression = (MemberAccessExpressionSyntax)invocationExpression.Expression;
 
         return memberAccessExpression.Name.GetLocation();
     }
@@ -155,8 +155,11 @@ public class MapMethodsGenerator : IIncrementalGenerator
             namespace System.Runtime.CompilerServices
             {
                 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-                file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute
+                file sealed class InterceptsLocationAttribute : Attribute
                 {
+                    public InterceptsLocationAttribute(string filePath, int line, int column)
+                    {
+                    }
                 }
             }
             """);
