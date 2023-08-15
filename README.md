@@ -2,52 +2,61 @@
 
 Built on top of Minimal APIs and easy to use
 
+> **Note**
+> If you are updating your project to use EndpointMapper v2 prerelease 3+ [see the update guide](#updating-to-v2-prerelease-3)
+
 ## Installation
 
 Add the package to your ASP.NET Core project
 
 ```sh
 dotnet add package EndpointMapper
+
+# To add support for OpenAPI (See below for more instructions)
+dotnet add package EndpointMapper.OpenApi
 ```
 
 ## Requirements
 
-- .NET 7
-- ASP.NET Core 7
+- [.NET 8][getDotnet]
+- [ASP.NET Core 8][getDotnet]
 
 ## Usage
 
 Add this into the `Program.cs`
-- `builder.Services.AddEndpointMapper<T>();`
-- `app.UseEndpointMapper();`
-
-Then create a public class that implements `IEndpoint` and add a method with attribute `HttpMapGet`
-or one of the variants for each HTTP verb
+```cs
+app.MapEndpointMapperEndpoints();
+```
+And this line to your `.csproj` inside the `PropertyGroup`[^interceptors]
+```xml
+    <Features>InterceptorsPreview</Features>
+```
+Then create a public class that implements `IEndpoint` and add a static method with attribute `HttpMap(HttpMapMethod.Get, "<route>")`
+where you can change `HttpMapMethod.Get` to any other options for different HTTP verbs and `"<route>"` to one, or more, routes to map the endpoint to
 
 > **Note**
 > see [Samples](#sample) for an example
 
 > **Note**
 >
-> If you want to use bind parameters to the method function [see this section](#parameters-binding-and-function-return)
->
-> If you want to use dependency injection [see this section](#dependency-injection)
+> To bind parameters/inject dependencies to the method function [see more below](#parameters-binding-and-function-return)
 >
 > If you want to use Swagger [see this section](#openapi-support-swagger)
 
+[^interceptors]: EndpointMapper uses a source generator and a interceptor to intercept the call to `MapEndpointMapperEndpoints` and map your endpoints.
+The source generated code uses features from `C# 11`, so if you manually specify a lower `LangVersion` you need to bump it up at least to `11`
+
 ### Sample
 
-Program.cs: 
+Program.cs:
 ```csharp
 using EndpointMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointMapper<Program>();
-
 var app = builder.Build();
 
-app.UseEndpointMapper();
+app.MapEndpointMapperEndpoints();
 
 app.Run();
 ```
@@ -60,62 +69,38 @@ using EndpointMapper;
 
 public class ExampleEndpoint : IEndpoint
 {
-    [HttpMapGet("/example")]
-    public Ok<string> Handle()
+    [HttpMap(HttpMapMethod.Get, "/example")]
+    public static Ok<string> Handle()
     {
         return TypedResults.Ok("Hello world from EndpointMapper");
     }
 }
 ```
 > **Note**
-> If you want to bind values from the request into the params of the request see [this](#parameters-binding-and-function-return)
+> To bind parameters/inject dependencies to the method function [see more below](#parameters-binding-and-function-return)
 
 ---
 
 ## Parameters Binding and function return
 
-Since EndpointMapper uses the native ASP.NET delegate system to map your endpoint and make them work, you can threat
+Since EndpointMapper uses the native ASP.NET mapping system to map your endpoint and make them work, you can threat
 your method like the inline delegate to the `app.MapGet(...)` method.
 
 So you can do:
 - Http Body, Query, Route, Headers binding into the function arguments
-- Dependency Injection (for more details, [see this section](#dependency-injection))
+- Dependency Injection from the method parameters
 - Attributes like `[FromBody]` or `[FromQuery]` to explicitly map the required values into arguments
 - Return using the `Results` or `TypedResults` methods or directly a `string` or any other values that ASP.NET
 automatically can translate into a valid HTTP response body
 
-An example of this can be seen in the [example](#sample) where TypedResults is used to send an 200 Status code
+An example of this can be seen in the [example](#sample) where `TypedResults` is used to send an 200 Status code
 response back with a body attached that contains a string saying `Hello world from EndpointMapper`
-
----
-
-## Dependency Injection
-
-While you can use the method parameters to inject and use your services, if you want you can still use the 
-constructor of the class you created to resolve your services and map them to a private readonly field, for example.
-
-This is done by EndpointMapper using a middleware that's registered by-default when using the
-`.UseEndpointMapper()` on the `WebApplication`, but if you don't want to add it to the middleware pipeline and you
-don't want to use the constructor based DI then you can pass a `false` to the method like this: 
-`.UseEndpointMapper(addMiddleware: false)`
-
-> **Warning**
-> As stated above, setting this to false **will** skip the DI resolution using the middleware, and since EndpointMapper
-> creates the endpoint classes during the `.UseEndpointMapper()` method, and the created classes are uninitialized, all 
-> the fields will be null (unless the field has a default value) and the _non static_ constructor **won't** be called.
-> So if you need to use a constructor to initialize something and for some reason you can't do it using a default value
-> then setting addMiddleware to false may cause unexpected behaviour, keep in mind that static constructor will be 
-> called and will function as normal, as them are called by the .NET runtime
-
-> **Note**
-> You could just pass false and don't add the "addMiddleware: " part, but for readability purposes it's kept in here
-> to make it easier to understand what this false actually means
 
 ---
 
 ## OpenAPI support (swagger)
 
-EndpointMapper only supports `Swashbuckle.AspNetCore`[^template], and you will need to add the EndpointMapper.OpenApi package
+EndpointMapper only supports `Swashbuckle.AspNetCore`, and you will need to add the `EndpointMapper.OpenApi` package
 
 > **Warning**
 > For [authentication](#authentication-requirements) or [XML documentation](#xml-documentation) you may need to add 
@@ -127,7 +112,7 @@ You will need to add:
 
 - To your `.csproj`
   - `<GenerateDocumentationFile>true</GenerateDocumentationFile>` to generate the XML file to use
-  - Optionally, `<NoWarn>$(NoWarn);CS1591</NoWarn>` to disable the warning [`Missing XML comment for publicly visible type or member 'Type_or_Member'`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs1591)
+  - Optionally, `<NoWarn>$(NoWarn);CS1591</NoWarn>` to disable the warning [`Missing XML comment for publicly visible type or member 'Type_or_Member'`][CS1591]
 
 - To the `.AddSwaggerGen()` call
 ```csharp
@@ -147,8 +132,6 @@ config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), i
 > of the variable to which the `SwaggerGenOption` instance is bound, if you named it in another way you'll need to change
 > the code accordingly, if you're not sure about what you're doing, there is an example of the complete call to `.AddSwaggerGen()` to the [end of
 > the swagger section](#addswaggergen-example-call)
-
-[^template]: The .NET 7 the ASP.NET template also uses `Microsoft.AspNetCore.OpenApi`
 
 ### Authentication requirements
 
@@ -215,96 +198,91 @@ builder.Services.AddSwaggerGen(config =>
 
 ---
 
-## Advanced
+## Using a route group
+
+In previous versions EndpointMapped used to have an option to prefix all the routes. Now this options doesn't exist anymore, [see the upgrade guide](#updating-to-v2-prerelease-3).
+
+To still have the ability to prefix all your routes by using an ASP.NET Route Group, EndpointMapped used to use it under the hood
+but now you have to use it yourself.
+
+You can create a Route group by using the `MapGroup` method on the `WebApplication` or another route group, then
+you can use the `MapEndpointMapperEndpoints` method on the Route group builder instance. If you wanted to configure the group
+you can now simply use the Route group builder instance you just got.
+
+This now allows to map multiple times your endpoints if you want, for example you could map all your endpoints to both `/api` and `/` if you wanted.
+
+## Endpoint configurations
 
 ### Method based configuration
 
-You may want to add a OutputCaching policy, but there is a problem: since parameters to attributes can only be 
-compile-time constant value, we can't pass an action to configure the caching and for this reason we would need to 
-define a policy for each and every endpoint
+You may want to configure more some of your endpoints, but there is a problem. Since we are using `Attributes`
+to map our endpoints and ASP.NET Core doesn't provide attribute to specify a filter attribute, for example, for a minimal API
+it seems that we can't do much about this.
 
-That is not practical at all. It will bloat your application with policies used in 1 or maybe 2 places, but in some
-contexts it can be totally fine, as it gives a central access to all the policies, but you may not want this
-
-For this reason when EndpointMapper maps an endpoint, it firstly checks for attributes extending 
-`EndpointConfigurationAttribute` to add some attribute that may be missing in ASP.NET, like `[Filter<T>]`, and then runs
-the `Configure` method that is in your class, where you have the `RouteHandlerBuilder` and you can do
-whatever you want with it, for example, setting a policy for OutputCaching, the only thing you need to do is creating
-the `Configure(RouteHandlerBuilder)` method and add your own logic for configuring the endpoint
+For this reason EndpointMapper allows you to specify a `Configure` method by implementing the `IConfigureEndpoint`,
+this method gives you access to the `RouteHandlerBuilder`, the route the endpoint is being mapped to and the HTTP Method,
+this way you can use the builder like if you were chaining methods to the result of `MapGet`, `MapPost`, ecc..
 
 > **Warning**
-> If you registered your endpoint with the [`Register(IEndpointRouteBuilder)` method](#method-based-registration)
-> EndpointMapper won't call the `Configure(RouteHandlerBuilder)` and you will need to do your configuration in the
-> `Register` method
+> If you registered your endpoint with the [method based approach](#method-based-registration)
+> EndpointMapper won't call the `Configure` method, as it is called for endpoints mapped by the `HttpMap` attribute,
+> and you will need to do your configuration in the `Register` method
 
 > **Note**
-> Since this method is for class and with EndpointMapper you can add more then one handler function to the class, even 
-> though it is not recommended, the `Configure` method will be called for each endpoint mapped independently from if
-> it's a different function[^different-function], if it's is for the second / third / ... route of the 
-> attribute[^multiple-routes] or if it's the same method with 2 different mapping attributes that map to different HTTP 
-> methods[^different-attributes], all of there 3 cases mixes, so let's assume you have 2 methods, each with 3 
-> routes and 2 attributes, then the `Configure` will be called 12 times in total[^explanation-for-12-call].
+> Since the `Configure` method is implemented on the class and EndpointMapper doesn't enforce the 1 handler for class, this
+> method will be called for each endpoint you map in the class you implement the `Configure` method. To differentiate a 
+> route from another the function has 2 another `string` arguments, one it's the route the endpoint is being mapped to
+> and the other one is the method that is being used to map the endpoint.
 >
-> To get more control on what configuration is applied where, you could split the endpoints in multiple files 
-> or using one of the `Configure` overloads that gives information about the current endpoint that is being configured, 
-> there are 3 overloads in total, ignoring the base one.
-> Each one adds one information on top of the builder, the route, 
-> the HTTP methods and finally the MethodInfo
-
-[^different-function]: example, you have 2 methods, `Handle` and `HandleButDifferent` and you map both with an 
-`[HttpMapGet]`, EndpointMapper will call the `Configure` first for `Handle` and its Get mapping, then for 
-`HandleButDifferent` and its Get mapping
-
-[^multiple-routes]: example, you have a `Handle` method with `[HttpMapGet("/a", "/b")]`,
-EndpointMapper will call the `Configure` first for /a, then for /b again
-
-[^different-attributes]: example, you have a `Handle` method with `[HttpMapGet("/"), HttpMapPost("/")]`, EndpointMapper
-will call the `Configure` first for the Get mapping, then for the Post mapping, BUT if the attribute that you use for 
-mapping implies multiple HTTP verb, like an attribute named `[HttpMapGetAndPost("/")]` that bind your endpoint to 
-both Get and Post then EndpointMapper will call `Configure` only once for this method because it's in fact a single 
-attribute
-
-[^explanation-for-12-call]: explanation of why 12, first we get the first method, it has 2 attributes, we take the
-first, we get the 3 routes and as stated in the second rule[^multiple-routes] we call it 3 times total, then we get the 
-second attributes and call the `Configure` other 3 times for the second rule[^multiple-routes], and this was the third 
-rule[^different-attributes] (the 2 attributes) and we have already called the `Configure` 6 times, then to respect the 
-first rule[^different-function] we need to this again, and we get another 6 calls, up to a total of 12
+> There is one only thing to remember when having multiple endpoints in the class is that this method will be called for
+> each route in each `HttpMap` attribute you have in the class. So if you have 2 methods, each with 2 attributes and 2 routes
+> each you the `Configure` method will be called a total of 8 times, since in total you are mapping 8 different routes.
 
 ### Method based registration
 
-If you don't like the fact that EndpointMapper uses attributes to map your endpoints or you need to map to a HTTP verb
-that does not have an attribute, you can override the `Register` method on the class implementing IEndpoint 
-that gives you the `IEndpointRouteBuilder` which has access to methods like `.MapGet()`
+If you don't like using attributes to map your endpoints you can implement the `IRegisterEndpoint` interface and the
+`Register` method. In this method you have access to the `IEndpointRouteBuilder` you use to call the `MapEndpointMapperEndpoints`
+method, using the builder you can use the extension methods that ASP.NET Core declares to map all your endpoints,
+an example is the `MapGet` or `MapPost` method.
 
 > **Warning**
-> Don't use `Register(IEndpointRouteBuilder)` if you need to configure stuff like OutputCaching that can accept an
-> action to configure its behaviour without creating a policy, for this there is the `Configure(RouteHandlerBuilder)`
-> method instead, you can [see more about this here](#method-based-configuration)
+> Don't use `Register` method if you need to configure your endpoints and you want to use the Attribute based mapping,
+> for that you can use the [`Configure` method](#method-based-configuration)
 
 > **Note**
-> EndpointMapper checks for both Attributes and `Register` to register your endpoints
+> EndpointMapper checks for both the `HttpMap` attribute and the `Register` method to register your endpoints
+
+## Updating to v2 prerelease 3+
+
+In the prerelease 3 the public API of EndpointMapper changed quite a bit, so here are all the changes that have
+been made and you have to do to update your project.
 
 > **Note**
-> If you use a debugger, you will see that the actual type that EndpointMapper uses to call the method is 
-> `RouteGroupBuilder`, this is because to respect the configuration of `RoutePrefix` EndpointMapper uses a minimal api
-> group to map all your endpoint, you could cast the type back to `RouteGroupBuilder` using an hard cast and use the
-> builder to, for example, configure the group with some behaviour settings, for example setting a default output cache 
-> policy, although this is NOT encouraged because you can easily forget about it after setting it up
-> and since it's in an endpoint class you are configuring the group from an endpoint, which is not that great, since
-> you may still want to configure some behaviour in the group, in the `.AddEndpointMapper()` call you can pass an 
-> action witch gives you the ability to configure the EndpointMapper configuration and in there you can set the 
-> `ConfigureGroupBuilder` action to configure the group, it gives you the full `RouteGroupBuilder` without having to
-> cast it and it won't "belong" to any Endpoint that may be deleted later for any reason
+> If you are updating from v1 there is one extra thing to do.
+>
+> The swagger support is now optional, so you need to install the `EndpointMapper.OpenApi` nuget package 
+> and add `using EndpointMapper.OpenApi;` for the `AuthenticationRequirementOperationFilter`
 
-### Create your own `EndpointConfigurationAttribute`
+- `HttpMap<HttpVerb>(<routes>)` has now been replaced with `HttpMap(HttpMapMethod.<HttpVerb>, <routes>)`,
+so a `HttpMapGet("/myRoute")` now is `HttpMap(HttpMapMethod.Get, "/myRoute")`
+- All your methods that have an `HttpMap` attribute now needs to be `static`
+- The constructor based DI is no longer supported. You now need to use the DI from the method parameters
+- The `Configure` method now has only 1 overload, `Configure(RouteHandlerBuilder, string route, string method)`
+- the `IEndpointConfigurationAttribute` interface and the `Filter<T>` attribute have been deleted. You now need to use the [method based configuration](#method-based-configuration)
+- `AddEndpointMapper<T>(this IServiceCollection, Action<EndpointMapperConfiguration>)`,
+`AddEndpointMapper(this IServiceCollection, Action<EndpointMapperConfiguration>, params Type[])` and
+`AddEndpointMapper(this IServiceCollection, Action<EndpointMapperConfiguration>, params Assembly[])` have been removed.
+- `UseEndpointMapper(this WebApplication, bool)` has been renamed to `MapEndpointMapperEndpoints(this IEndpointRouteBuilder)`
+- You need [.NET 8 and ASP.NET Core 8][getDotnet]
+- You need to enable `Interceptors`[^interceptors] by adding `<Features>InterceptorsPreview</Features>` to your `.csproj` inside a `PropertyGroup`
+- You need at least C# 11, if you specify a `LangVersion` that is lower then 11 you need to bump it up
+- The finding of your endpoints is now done at compile time via a source generator and not a runtime using reflection. Now EndpointMapper is NativeAOT friendly.
+- The `LogTimeTookToInitialize` option doesn't exist anymore
+- The `RoutePrefix` and `ConfigureGroupBuilder` options do not exist anymore. You can still configure EndpointMapper to use 
+a [route prefix using a ASP.NET Route Group](#using-a-route-group)
 
-Simple create a class that extends `EndpointConfigurationAttribute`
+To see all the changes that have been made to the EndpointMapper since v1 code you can check the [Github commits][gitCommits]
 
-`EndpointConfigurationAttribute` requires you to implement a method called `Configure` where you have access to the 
-`RouteHandlerBuilder` from ASP.NET to configure the route, the rest is handled automatically
-
-### Create your own `HttpMapAttribute`
-
-Simple create a class that extends `HttpMapAttribute` and use `: base()` on the constructor to pass the route(s)
-and overload the `Methods` properties to set the list of HTTP Verb that the attributes correspond to, the verb MUST be 
-supported by ASP.NET or else it wont work, the rest is handled automatically
+[getDotnet]: https://get.dot.net/8
+[CS1591]: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs1591
+[gitCommits]: https://github.com/Fleny113/EndpointMapper/compare/08b4d3640586da116cff589b02cad5fab98e6cbb...main
