@@ -27,10 +27,7 @@ Add this into the `Program.cs`
 ```cs
 app.MapEndpointMapperEndpoints();
 ```
-And this line to your `.csproj` inside the `PropertyGroup`[^interceptors]
-```xml
-    <Features>InterceptorsPreview</Features>
-```
+
 Then create a public class that implements `IEndpoint` and add a static method with attribute `HttpMap(HttpMapMethod.Get, "<route>")`
 where you can change `HttpMapMethod.Get` to any other options for different HTTP verbs and `"<route>"` to one, or more, routes to map the endpoint to
 
@@ -42,9 +39,6 @@ where you can change `HttpMapMethod.Get` to any other options for different HTTP
 > To bind parameters/inject dependencies to the method function [see more below](#parameters-binding-and-function-return)
 >
 > If you want to use Swagger [see this section](#openapi-support-swagger)
-
-[^interceptors]: EndpointMapper uses a source generator and a interceptor to intercept the call to `MapEndpointMapperEndpoints` and map your endpoints.
-The source generated code uses features from `C# 11`, so if you manually specify a lower `LangVersion` you need to bump it up at least to `11`
 
 ### Sample
 
@@ -274,8 +268,6 @@ so a `HttpMapGet("/myRoute")` now is `HttpMap(HttpMapMethod.Get, "/myRoute")`
 `AddEndpointMapper(this IServiceCollection, Action<EndpointMapperConfiguration>, params Assembly[])` have been removed.
 - `UseEndpointMapper(this WebApplication, bool)` has been renamed to `MapEndpointMapperEndpoints(this IEndpointRouteBuilder)`
 - You need [.NET 8 and ASP.NET Core 8][getDotnet]
-- You need to enable `Interceptors`[^interceptors] by adding `<Features>InterceptorsPreview</Features>` to your `.csproj` inside a `PropertyGroup`
-- You need at least C# 11, if you specify a `LangVersion` that is lower then 11 you need to bump it up
 - The finding of your endpoints is now done at compile time via a source generator and not a runtime using reflection. Now EndpointMapper is NativeAOT friendly.
 - The `LogTimeTookToInitialize` option doesn't exist anymore
 - The `RoutePrefix` and `ConfigureGroupBuilder` options do not exist anymore. You can still configure EndpointMapper to use 
