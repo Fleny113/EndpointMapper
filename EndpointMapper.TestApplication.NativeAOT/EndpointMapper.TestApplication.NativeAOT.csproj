@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
     <PublishAot>true</PublishAot>
-    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-    <Features>InterceptorsPreview</Features>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
      
     <UseLocalProjects>true</UseLocalProjects>
   </PropertyGroup>

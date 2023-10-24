@@ -42,5 +42,5 @@ public interface IConfigureEndpoint
     /// </param>
     /// <param name="route">Route of the handler currently being configured</param>
     /// <param name="method">HTTP Verbs of the handler currently being configured</param>
-    public abstract static void Configure(RouteHandlerBuilder builder, string route, string method);
+    public static abstract void Configure(RouteHandlerBuilder builder, string route, string method);
 }

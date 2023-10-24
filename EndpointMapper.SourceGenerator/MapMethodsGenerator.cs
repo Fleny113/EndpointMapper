@@ -6,235 +6,163 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using EndpointClassInformation = (Microsoft.CodeAnalysis.IMethodSymbol[] methods, bool implementsRegisterMethod, bool implementsConfigureMethod);
 
 namespace EndpointMapper.SourceGenerator;
 
 [Generator]
 public class MapMethodsGenerator : IIncrementalGenerator
 {
-#if false
-    public MapMethodsGenerator()
-    {
-        if (!System.Diagnostics.Debugger.IsAttached)
-        {
-            System.Diagnostics.Debugger.Launch();
-        }
-    }
-#endif
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var endpoints = context.SyntaxProvider
-            .CreateSyntaxProvider(predicate: (node, _) => node is ClassDeclarationSyntax, transform: SyntaxProviderEndpointTransformer)
-            .Where(x => x is { methods.Length: > 0 })
+            .CreateSyntaxProvider(predicate: (node, _) => node is ClassDeclarationSyntax, transform: SyntaxEndpointTransformer)
+            .Where(classInformation => classInformation is { Methods.Count: > 0 })
             .Collect();
 
-        var mapEndpointsLocations = context.SyntaxProvider
-            .CreateSyntaxProvider(predicate: (node, _) => node is InvocationExpressionSyntax, transform: SyntaxProviderLocationTransformer)
-            .Where(x => x is not null)
-            .Collect();
-
-        var endpointsAndMapLocation = endpoints.Combine(mapEndpointsLocations);
-
-        context.RegisterSourceOutput(source: endpointsAndMapLocation, action: SourceOutputAction);
+        context.RegisterSourceOutput(source: endpoints, action: SourceOutputAction);
     }
 
-    private static EndpointClassInformation SyntaxProviderEndpointTransformer(GeneratorSyntaxContext context, CancellationToken ct)
+    private static EndpointClassInformation SyntaxEndpointTransformer(GeneratorSyntaxContext context, CancellationToken ct)
     {
-        var classSymbol = context.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax)context.Node);
-
+        var classSymbol = context.SemanticModel.GetDeclaredSymbol((ClassDeclarationSyntax) context.Node);
         var endpointInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IEndpoint");
-        var endpointRegisterInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IRegisterEndpoint");
-        var endpointConfigureInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IConfigureEndpoint");
+        var registerInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IRegisterEndpoint");
+        var configureInterface = context.SemanticModel.Compilation.GetTypeByMetadataName("EndpointMapper.IConfigureEndpoint");
 
         if (
             classSymbol is null ||
             endpointInterface is null ||
-            endpointRegisterInterface is null ||
-            endpointConfigureInterface is null ||
+            registerInterface is null ||
+            configureInterface is null ||
             !classSymbol.Interfaces.Contains(endpointInterface)
         )
-            return (Array.Empty<IMethodSymbol>(), false, false);
+            return new EndpointClassInformation
+            {
+                Methods = Array.Empty<ISymbol>(),
+                ConfigureImplemented = false,
+                RegisterImplemented = false,
+            };
 
         var methods = classSymbol
             .GetMembers()
-            .OfType<IMethodSymbol>()
-            .Where(x => x.IsStatic)
+            .Where(symbol => symbol is { IsStatic: true, Kind: SymbolKind.Method })
             .ToArray();
-
-        return (
-            methods,
-            classSymbol.Interfaces.Contains(endpointRegisterInterface),
-            classSymbol.Interfaces.Contains(endpointConfigureInterface)
-        );
-    }
-
-    private static Location SyntaxProviderLocationTransformer(GeneratorSyntaxContext context, CancellationToken ct)
-    {
-        var invocationExpression = (InvocationExpressionSyntax)context.Node;
-
-        var invocationSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        var extensionMethod = context.SemanticModel.Compilation
-            .GetTypeByMetadataName("EndpointMapper.EndpointMapperExtensions")
-            ?.GetMembers("MapEndpointMapperEndpoints")
-            .OfType<IMethodSymbol>()
-            .FirstOrDefault(m => m.IsExtensionMethod);
-
-        if (
-            invocationSymbol.Symbol is not IMethodSymbol methodSymbol ||
-            methodSymbol.ReducedFrom is null ||
-            extensionMethod is null ||
-            !methodSymbol.ReducedFrom.Equals(extensionMethod, SymbolEqualityComparer.Default)
-        )
-            return null!;
-
-        var memberAccessExpression = (MemberAccessExpressionSyntax)invocationExpression.Expression;
-
-        return memberAccessExpression.Name.GetLocation();
-    }
-
-    private static void SourceOutputAction(SourceProductionContext context, (ImmutableArray<EndpointClassInformation> left, ImmutableArray<Location> rigth) endpointsAndMapLocation)
-    {
-        var strBuilderMapping = new StringBuilder();
-        var strBuilderLocations = new StringBuilder();
-
-        var (endpoints, locations) = endpointsAndMapLocation;
-
-        foreach (var location in locations)
+        
+        return new EndpointClassInformation
         {
-            if (location.SourceTree is null)
-                continue;
+            Methods = methods,
+            RegisterImplemented = classSymbol.Interfaces.Contains(registerInterface),
+            ConfigureImplemented = classSymbol.Interfaces.Contains(configureInterface)
+        };
+    }
 
-            var lineSpan = location.GetLineSpan();
+    private static void SourceOutputAction(
+        SourceProductionContext context, 
+        ImmutableArray<EndpointClassInformation> endpoints)
+    {
+        var strBuilder = new StringBuilder();
 
-            strBuilderLocations.AppendLine("");
-            strBuilderLocations.Append($"""
-                    [global::System.Runtime.CompilerServices.InterceptsLocation(@"{location.SourceTree.FilePath}", {lineSpan.StartLinePosition.Line + 1}, {lineSpan.StartLinePosition.Character + 1})]
-            """);
-        }
-
-        foreach (var (methods, implementsRegisterMethod, implementsConfigureMethod) in endpoints)
+        foreach (var (methods, registerImplemented, configureImplemented) in endpoints)
         {
             var containingType = methods[0].ContainingType.ToDisplayString();
 
-            strBuilderMapping.AppendLine($"            // Mapping endpoints in {containingType}");
+            strBuilder.AppendLine();
+            strBuilder.AppendLine($"            // Mapping endpoints in {containingType}");
 
-            if (implementsRegisterMethod)
-                strBuilderMapping.AppendLine($"            global::{containingType}.Register(builder);");
+            if (registerImplemented)
+                strBuilder.AppendLine($"            global::{containingType}.Register(builder);");
 
-            MapMethods(strBuilderMapping, methods, implementsConfigureMethod, containingType);
-
-            strBuilderMapping.AppendLine("");
+            var methodInformationArray = methods
+                .SelectMany(method => method.GetAttributes().Select(attribute => new EndpointMethodAttributes{ Method =method, Attribute = attribute}))
+                .Where(methodAttributes => methodAttributes.Attribute.AttributeClass is { Name: "HttpMapAttribute", ContainingNamespace.Name: "EndpointMapper" })
+                .Select(GetAttributeConstructorValues)
+                .Where(methodInfo => methodInfo is { Routes.Count: > 0 });
+            
+            foreach (var methodInformation in methodInformationArray)
+            {
+                MapRoutes(strBuilder, methodInformation, configureImplemented, containingType);
+            }
         }
 
         context.AddSource("Endpoints.g.cs", $$"""
             // <auto-generated/>
 
             #nullable enable
-            #pragma warning disable CS9113
 
-            namespace EndpointMapper.SourceGenerator
+            namespace EndpointMapper
             {
-                file static class EndpointMapperExtensions
+                public static class EndpointMapperExtensions
                 {
                     private static readonly string[] ConnectVerb = new[] { "CONNECT" };
                     private static readonly string[] HeadVerb = new[] { "HEAD" };
                     private static readonly string[] OptionsVerb = new[] { "OPTIONS" };
                     private static readonly string[] TraceVerb = new[] { "TRACE" };
-            {{strBuilderLocations}}
-                    public static global::Microsoft.AspNetCore.Routing.IEndpointRouteBuilder MapEndpointMapperEndpoints(this global::Microsoft.AspNetCore.Routing.IEndpointRouteBuilder builder)
-                    {
-            {{strBuilderMapping}}
-                        return builder;
-                    }
-                }
-            }
 
-            namespace System.Runtime.CompilerServices
-            {
-                [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-                file sealed class InterceptsLocationAttribute : Attribute
-                {
-                    public InterceptsLocationAttribute(string filePath, int line, int column)
-                    {
+                    public static global::Microsoft.AspNetCore.Routing.IEndpointRouteBuilder MapEndpointMapperEndpoints(this global::Microsoft.AspNetCore.Routing.IEndpointRouteBuilder builder)
+                    {{{strBuilder}}
+                        return builder;
                     }
                 }
             }
             """);
     }
 
-    private static void MapMethods(StringBuilder strBuilder, IMethodSymbol[] methods, bool implementsConfigureMethod, string containingType)
+    private static void MapRoutes(StringBuilder strBuilder, EndpointMethodInformation methodInformation, bool configureImplemented, string containingType)
     {
-        foreach (var method in methods)
+        foreach (var route in methodInformation.Routes)
         {
-            var attributes = method
-                .GetAttributes()
-                .Where(x => x.AttributeClass is { Name: "HttpMapAttribute", ContainingNamespace.Name: "EndpointMapper" })
-                .ToArray();
-
-            MapAttributes(strBuilder, implementsConfigureMethod, containingType, method, attributes);
-        }
-    }
-
-    private static void MapAttributes(StringBuilder strBuilder, bool implementsConfigureMethod, string containingType, IMethodSymbol method, AttributeData[] attributes)
-    {
-        foreach (var attribute in attributes)
-        {
-            if (!IsValidAttribute(attribute.ConstructorArguments[0], attribute.ConstructorArguments[1], out var httpMethod, out var routes))
-                continue;
-
-            MapRoutes(strBuilder, implementsConfigureMethod, containingType, method, httpMethod, routes);
-        }
-    }
-
-    private static void MapRoutes(StringBuilder strBuilder, bool implementsConfigureMethod, string containingType, IMethodSymbol method, string httpMethod, string[] routes)
-    {
-        foreach (var route in routes)
-        {
-            // Get, Post, Put, Delete, Patch have a built-in method so we use that.
-            var endpointRouteBuilderMethod = httpMethod switch
+            // Get, Post, Put, Delete, Patch have a built-in method so we use those.
+            var builderMethod = methodInformation.HttpVerb switch
             {
-                "GET" => $@"MapGet(builder, ""{route}"",",
-                "POST" => $@"MapPost(builder, ""{route}"",",
-                "PUT" => $@"MapPut(builder, ""{route}"",",
-                "DELETE" => $@"MapDelete(builder, ""{route}"",",
-                "PATCH" => $@"MapPatch(builder, ""{route}"",",
-                _ => $@"MapMethods(builder, ""{route}"", {GetHttpMethods(httpMethod)},",
+                "GET" => $"""MapGet(builder, "{route}",""",
+                "POST" => $"""MapPost(builder, "{route}",""",
+                "PUT" => $"""MapPut(builder, "{route}",""",
+                "DELETE" => $"""MapDelete(builder, "{route}",""",
+                "PATCH" => $"""MapPatch(builder, "{route}",""",
+                _ => $"""MapMethods(builder, "{route}", {GetHttpMethods(methodInformation.HttpVerb)},""",
             };
 
-            var endpointRouterBuilder = $$"""global::Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.{{endpointRouteBuilderMethod}} global::{{containingType}}.{{method.Name}})""";
+            var endpointRouterBuilder =
+                $"global::Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.{builderMethod} global::{containingType}.{methodInformation.Method.Name})";
 
-            if (!implementsConfigureMethod)
+            if (!configureImplemented)
             {
                 strBuilder.AppendLine($"            {endpointRouterBuilder};");
                 continue;
             }
 
-            strBuilder.AppendLine($$"""            global::{{containingType}}.Configure({{endpointRouterBuilder}}, "{{route}}", "{{httpMethod}}");""");
+            strBuilder.AppendLine($"""            global::{containingType}.Configure({endpointRouterBuilder}, "{route}", "{methodInformation.HttpVerb}");""");
         }
     }
 
-    private static bool IsValidAttribute(TypedConstant httpMethodArgument, TypedConstant routesArgument, out string httpMethod, out string[] routes)
+    private static EndpointMethodInformation GetAttributeConstructorValues(EndpointMethodAttributes methodAttributes)
     {
-        httpMethod = null!;
-        routes = null!;
+        var httpMethodArgument = methodAttributes.Attribute.ConstructorArguments[0];
+        var routesArgument = methodAttributes.Attribute.ConstructorArguments[1];
 
-        if (httpMethodArgument is not { Kind: TypedConstantKind.Primitive, Value: string httpMethodOut })
-            return false;
+        if (httpMethodArgument is not { Kind: TypedConstantKind.Primitive, Value: string httpMethod } ||
+            routesArgument is not { Kind: TypedConstantKind.Array, Values: var routes })
+        {
+            return new EndpointMethodInformation
+            {
+                Method = methodAttributes.Method,
+                HttpVerb = string.Empty,
+                Routes = Array.Empty<string>()
+            };
+        }
 
-        httpMethod = httpMethodOut;
+        var transformedRoutes = routes
+            .Select(x => x.Value)
+            .Cast<string>()
+            .ToArray();
 
-        if (routesArgument is not { Kind: TypedConstantKind.Array, Values: ImmutableArray<TypedConstant> routesArray })
-            return false;
+        return new EndpointMethodInformation
+        {
+            Method = methodAttributes.Method,
+            HttpVerb = httpMethod,
+            Routes = transformedRoutes,
+        };
 
-        if (routesArray.Select(x => x.Value).Cast<string>().ToArray() is not string[] routesOut)
-            return false;
-
-        routes = routesOut;
-
-        return true;
     }
 
     private static string GetHttpMethods(object? httpMethod)
