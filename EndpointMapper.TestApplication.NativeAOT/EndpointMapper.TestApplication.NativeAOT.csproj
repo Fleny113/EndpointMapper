@@ -8,7 +8,7 @@
     <PublishAot>true</PublishAot>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-     
+
     <UseLocalProjects>true</UseLocalProjects>
   </PropertyGroup>
     

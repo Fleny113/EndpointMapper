@@ -11,11 +11,10 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
-app
-    .MapGroup("/todos")
-    .MapEndpointMapperEndpoints();
+var group = app.MapGroup("/todos");
+group.MapEndpointMapperEndpoints();
 
 app.Run();
 
 [JsonSerializable(typeof(Todo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext { }
+internal partial class AppJsonSerializerContext : JsonSerializerContext;

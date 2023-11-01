@@ -73,8 +73,11 @@ public class MapMethodsGenerator : IIncrementalGenerator
                 strBuilder.AppendLine($"            global::{containingType}.Register(builder);");
 
             var methodInformationArray = methods
-                .SelectMany(method => method.GetAttributes().Select(attribute => new EndpointMethodAttributes{ Method =method, Attribute = attribute}))
-                .Where(methodAttributes => methodAttributes.Attribute.AttributeClass is { Name: "HttpMapAttribute", ContainingNamespace.Name: "EndpointMapper" })
+                .SelectMany(
+                    method => method.GetAttributes(),
+                    (method, attribute) => new EndpointMethodAttributes { Method = method, Attribute = attribute }
+                )
+                .Where(attributes => attributes.Attribute.AttributeClass is { Name: "HttpMapAttribute", ContainingNamespace.Name: "EndpointMapper" })
                 .Select(GetAttributeConstructorValues)
                 .Where(methodInfo => methodInfo is { Routes.Count: > 0 });
             
