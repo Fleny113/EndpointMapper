@@ -5,14 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <Authors>Fleny</Authors>
         <Description>Endpoint Mapper Swagger Support for ASP.NET Core 8</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet8, openapi, swagger</PackageTags>
@@ -20,16 +14,12 @@
         <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
-
     <ItemGroup>
-        <None Include="..\README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
+        <None Include="..\README.md" Pack="true" PackagePath="\" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.OpenApi" Version="1.6.3" />
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.10" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     </ItemGroup>
 </Project>

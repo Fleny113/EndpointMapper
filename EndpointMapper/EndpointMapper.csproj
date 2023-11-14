@@ -4,13 +4,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Authors>Fleny</Authors>
 		<Description>Endpoint Mapper for ASP.NET Core 8</Description>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -20,16 +16,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+		<None Include="..\README.md" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(ArtifactsPath)\bin\EndpointMapper.SourceGenerator\$(Configuration)\EndpointMapper.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-
 		<ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" ReferenceOutputAssembly="false" />
-		<None Include="$(OutputPath)\..\..\EndpointMapper.SourceGenerator\$(Configuration)\EndpointMapper.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 </Project>
