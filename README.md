@@ -2,7 +2,7 @@
 
 Built on top of Minimal APIs and easy to use
 
-> **Note**
+> [!NOTE]
 > If you are updating your project to use EndpointMapper v2 prerelease 3+ [see the update guide](#updating-to-v2-prerelease-3)
 
 ## Installation
@@ -31,11 +31,10 @@ app.MapEndpointMapperEndpoints();
 Then create a public class that implements `IEndpoint` and add a static method with attribute `HttpMap(HttpMapMethod.Get, "<route>")`
 where you can change `HttpMapMethod.Get` to any other options for different HTTP verbs and `"<route>"` to one, or more, routes to map the endpoint to
 
-> **Note**
+> [!TIP]
 > see [Samples](#sample) for an example
 
-> **Note**
->
+> [!NOTE]
 > To bind parameters/inject dependencies to the method function [see more below](#parameters-binding-and-function-return)
 >
 > If you want to use Swagger [see this section](#openapi-support-swagger)
@@ -70,7 +69,7 @@ public class ExampleEndpoint : IEndpoint
     }
 }
 ```
-> **Note**
+> [!NOTE]
 > To bind parameters/inject dependencies to the method function [see more below](#parameters-binding-and-function-return)
 
 ---
@@ -96,7 +95,7 @@ response back with a body attached that contains a string saying `Hello world fr
 
 EndpointMapper only supports `Swashbuckle.AspNetCore`, and you will need to add the `EndpointMapper.OpenApi` package
 
-> **Warning**
+> [!WARNING]
 > For [authentication](#authentication-requirements) or [XML documentation](#xml-documentation) you may need to add 
 > some code to your `.AddSwaggerGen(...)` call
 
@@ -117,11 +116,11 @@ var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename), includeControllerXmlComments: true);
 ```
 
-> **Note**
+> [!NOTE] 
 > You may need to add `using System.Reflection;` because we use the `Assembly` class available in the 
 > `System.Reflection` namespace
 
-> **Note**
+> [!NOTE]
 > In the code you need to add the action passed as first argument to `.AddSwaggerGen()`, `config` is the name
 > of the variable to which the `SwaggerGenOption` instance is bound, if you named it in another way you'll need to change
 > the code accordingly, if you're not sure about what you're doing, there is an example of the complete call to `.AddSwaggerGen()` to the [end of
@@ -152,7 +151,7 @@ config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 config.OperationFilter<AuthenticationRequirementOperationFilter>();
 ```
 
-> **Note**
+> [!NOTE]
 > In the code you'll need to add the action passed as first argument to `.AddSwaggerGen()`, `config` it's the name
 > of the variable to witch the `SwaggerGenOption` instance is bound, if you named it in another way you need to change
 > the code accordingly, if you're not sure about what you're doing there is an example of the complete call to `.AddSwaggerGen()` at the [end of
@@ -217,12 +216,12 @@ For this reason EndpointMapper allows you to specify a `Configure` method by imp
 this method gives you access to the `RouteHandlerBuilder`, the route the endpoint is being mapped to and the HTTP Method,
 this way you can use the builder like if you were chaining methods to the result of `MapGet`, `MapPost`, ecc..
 
-> **Warning**
+> [!WARNING]
 > If you registered your endpoint with the [method based approach](#method-based-registration)
 > EndpointMapper won't call the `Configure` method, as it is called for endpoints mapped by the `HttpMap` attribute,
 > and you will need to do your configuration in the `Register` method
 
-> **Note**
+> [!NOTE]
 > Since the `Configure` method is implemented on the class and EndpointMapper doesn't enforce the 1 handler for class, this
 > method will be called for each endpoint you map in the class you implement the `Configure` method. To differentiate a 
 > route from another the function has 2 another `string` arguments, one it's the route the endpoint is being mapped to
@@ -239,11 +238,11 @@ If you don't like using attributes to map your endpoints you can implement the `
 method, using the builder you can use the extension methods that ASP.NET Core declares to map all your endpoints,
 an example is the `MapGet` or `MapPost` method.
 
-> **Warning**
+> [!WARNING]
 > Don't use `Register` method if you need to configure your endpoints and you want to use the Attribute based mapping,
 > for that you can use the [`Configure` method](#method-based-configuration)
 
-> **Note**
+> [!NOTE]
 > EndpointMapper checks for both the `HttpMap` attribute and the `Register` method to register your endpoints
 
 ## Updating to v2 prerelease 3+
@@ -251,7 +250,7 @@ an example is the `MapGet` or `MapPost` method.
 In the prerelease 3 the public API of EndpointMapper changed quite a bit, so here are all the changes that have
 been made and you have to do to update your project.
 
-> **Note**
+> [!NOTE]
 > If you are updating from v1 there is one extra thing to do.
 >
 > The swagger support is now optional, so you need to install the `EndpointMapper.OpenApi` nuget package 
