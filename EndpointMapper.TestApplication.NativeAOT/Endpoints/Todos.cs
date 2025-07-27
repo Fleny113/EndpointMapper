@@ -17,8 +17,6 @@ public static class TodoSingleton
 
 public abstract class GetTodosEndpoint : IEndpoint
 {
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
     public static void Register(IEndpointRouteBuilder builder)
     {
         builder.MapGet("/", GetTodos);
@@ -32,8 +30,6 @@ public abstract class GetTodosEndpoint : IEndpoint
 
 public abstract class GetTodoEndpoint : IEndpoint
 {
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
     public static void Register(IEndpointRouteBuilder builder)
     {
         builder.MapGet("/{id:int}", GetTodo);
