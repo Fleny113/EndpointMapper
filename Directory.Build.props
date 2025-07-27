@@ -3,7 +3,7 @@
     <PropertyGroup>
         <UseArtifactsOutput>true</UseArtifactsOutput>
         <NuGetAudit>true</NuGetAudit>
-        <Version>2.0.0</Version>
+        <Version>3.0.0-prerelease.1</Version>
         <Authors>Fleny</Authors>
         <RepositoryUrl>https://github.com/Fleny113/EndpointMapper</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
