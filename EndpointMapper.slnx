@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="EndpointMapper.OpenApi/EndpointMapper.OpenApi.csproj" />
+  <Project Path="EndpointMapper.SourceGenerator/EndpointMapper.SourceGenerator.csproj" />
+  <Project Path="EndpointMapper.TestApplication.NativeAOT/EndpointMapper.TestApplication.NativeAOT.csproj" />
+  <Project Path="EndpointMapper.TestApplication/EndpointMapper.TestApplication.csproj">
+    <BuildDependency Project="EndpointMapper.OpenApi/EndpointMapper.OpenApi.csproj" />
+    <BuildDependency Project="EndpointMapper/EndpointMapper.csproj" />
+  </Project>
+  <Project Path="EndpointMapper/EndpointMapper.csproj" />
+</Solution>
