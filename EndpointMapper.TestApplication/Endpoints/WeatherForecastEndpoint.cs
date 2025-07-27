@@ -1,6 +1,6 @@
 namespace EndpointMapper.TestApplication.Endpoints;
 
-public class WeatherForecastEndpoint : IEndpoint
+public abstract class WeatherForecastEndpoint : IEndpoint
 {
     private static readonly string[] summaries = new[]
     {

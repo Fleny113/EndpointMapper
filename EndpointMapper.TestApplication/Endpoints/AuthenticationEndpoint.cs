@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace EndpointMapper.TestApplication.Endpoints;
 
-public class AuthenticationEndpoint : IEndpoint
+public abstract class AuthenticationEndpoint : IEndpoint
 {
     [HttpMap(HttpMapMethod.Get, "/auth"), Authorize]
     public static Ok<string> Handle(ClaimsPrincipal user) => TypedResults.Ok($"Hello {user.Identity?.Name}");

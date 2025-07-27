@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Diagnostics;
-using System.Reflection;
-using System.Text.Json;
 
 namespace EndpointMapper.TestApplication.Endpoints;
 
-public class MultiEndpoint : IEndpoint, IConfigureEndpoint
+public abstract class MultiEndpoint : IEndpoint, IConfigureEndpoint
 {
     public static void Configure(RouteHandlerBuilder builder, string route, string method)
     {
