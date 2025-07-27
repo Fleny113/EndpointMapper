@@ -122,7 +122,11 @@ public class MapMethodsGenerator : IIncrementalGenerator
                 "PUT" => $"""MapPut(builder, "{route}",""",
                 "DELETE" => $"""MapDelete(builder, "{route}",""",
                 "PATCH" => $"""MapPatch(builder, "{route}",""",
-                _ => $"""MapMethods(builder, "{route}", {GetHttpMethods(methodInformation.HttpVerb)},""",
+                "CONNECT" => $"""MapMethods(builder, "{route}", ConnectVerb,""",
+                "HEAD" => $"""MapMethods(builder, "{route}", HeadVerb,""",
+                "OPTIONS" => $"""MapMethods(builder, "{route}", OptionsVerb,""",
+                "TRACE" => $"""MapMethods(builder, "{route}", TraceVerb,""",
+                _ => throw new NotSupportedException($"HTTPMethod {methodInformation.HttpVerb} is not supported!"),
             };
 
             var endpointRouterBuilder =
@@ -166,17 +170,5 @@ public class MapMethodsGenerator : IIncrementalGenerator
             Routes = transformedRoutes,
         };
 
-    }
-
-    private static string GetHttpMethods(object? httpMethod)
-    {
-        return httpMethod switch
-        {
-            "CONNECT" => "ConnectVerb",
-            "HEAD" => "HeadVerb",
-            "OPTIONS" => "OptionsVerb",
-            "TRACE" => "TraceVerb",
-            _ => throw new NotSupportedException($"HTTPMethod {httpMethod} is not supported!"),
-        };
     }
 }

@@ -29,10 +29,14 @@ public class MultiEndpoint : IEndpoint, IConfigureEndpoint
     }
 
     [HttpMap(HttpMapMethod.Get, "/multi", "/multi/2"), HttpMap(HttpMapMethod.Delete, "/multi/2")]
-    public static Ok<string> Handle(HttpContext context) 
+    public static Ok<string> Handle(HttpContext context)
         => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(Handle)}(HttpContext)");
 
     [HttpMap(HttpMapMethod.Post, "/multi/3")]
-    public static Ok<string> HandleButDifferent(HttpContext context) 
+    public static Ok<string> HandleButDifferent(HttpContext context)
+        => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)"); [HttpMap(HttpMapMethod.Post, "/multi/3")]
+
+    [HttpMap(HttpMapMethod.Options, "/multi")]
+    public static Ok<string> HandleOption(HttpContext context)
         => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
 }
