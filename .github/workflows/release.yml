@@ -18,7 +18,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet publish EndpointMapper --no-restore
+      run: dotnet publish EndpointMapper --no-restore --property:ContinuousIntegrationBuild=true
     - name: Get the release tag
       id: get_release_tag
       run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
