@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
 
@@ -22,8 +26,14 @@ jobs:
     - name: Get the release tag
       id: get_release_tag
       run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-    - name: Upload artifact to the release
+    - name: Upload artifact to the Github Release
       env:
         GH_TOKEN: ${{ github.token }}
       run: gh release upload ${{ steps.get_release_tag.outputs.tag }} artifacts/package/release/* --clobber
-
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+    - name: NuGet push
+      run: dotnet nuget push artifacts/package/release/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
