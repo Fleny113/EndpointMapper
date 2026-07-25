@@ -1,7 +1,6 @@
 // File copied from https://github.com/dotnet/aspnetcore/blob/2196cfd2cbac60dab2147073c261d237c6c9829c/src/Shared/RoslynUtils/CodeWriter.cs
 
 using System.CodeDom.Compiler;
-using System.IO;
 
 namespace EndpointMapper.SourceGenerator;
 

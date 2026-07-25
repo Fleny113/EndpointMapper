@@ -1,5 +1,6 @@
 {
   "sdk": {
-    "version": "9.0.302"
+    "version": "9.0.x",
+    "allowPrerelease": false
   }
 }

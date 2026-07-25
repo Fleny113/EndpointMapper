@@ -1,27 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Description>Endpoint Mapper for ASP.NET Core 9</Description>
-		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<Description>Endpoint Mapper for ASP.NET Core</Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet8, minimal-api, sourcegenerators, source-generators</PackageTags>
+		<PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, minimal-api, sourcegenerators, source-generators</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="..\README.md" Pack="true" PackagePath="\" Visible="false" />
-		<None Include="$(ArtifactsPath)\bin\EndpointMapper.SourceGenerator\$(Configuration)\EndpointMapper.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" ReferenceOutputAssembly="false" />
+		<ProjectReference
+			Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj"
+			ReferenceBuildAssembly="false"
+		/>
 	</ItemGroup>
+
+	<Target Name="IncludeSourceGeneratorInPackage" BeforeTargets="_GetPackageFiles">
+		<MSBuild Projects="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" Targets="GetTargetPath">
+			<Output TaskParameter="TargetOutputs" ItemName="GeneratorAssemblyPath" />
+		</MSBuild>
+
+		<ItemGroup>
+			<None Include="@(GeneratorAssemblyPath)"
+				Pack="true"
+				PackagePath="analyzers/dotnet/cs"
+				Visible="false"
+			/>
+		</ItemGroup>
+	</Target>
 </Project>

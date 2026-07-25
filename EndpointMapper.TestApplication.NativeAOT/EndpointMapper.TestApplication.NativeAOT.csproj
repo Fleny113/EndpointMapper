@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-    
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
     <PublishAot>true</PublishAot>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
@@ -12,11 +8,14 @@
 
     <UseLocalProjects>true</UseLocalProjects>
   </PropertyGroup>
-    
+
   <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
-    <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\EndpointMapper\EndpointMapper.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="..\EndpointMapper\EndpointMapper.csproj"  />
+    <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="true"
+      PrivateAssets="all" />
+    </ItemGroup>
 
   <ItemGroup Condition="'$(UseLocalProjects)' == 'false'">
     <!-- This requires to setup a nuget source in the artifacts/package/<Configuration> or else it will use Nuget -->

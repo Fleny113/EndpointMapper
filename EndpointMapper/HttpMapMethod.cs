@@ -38,6 +38,10 @@ public static class HttpMapMethod
     /// </summary>
     public const string Put = "PUT";
     /// <summary>
+    /// QUERY HTTP Method
+    /// </summary>
+    public const string Query = "QUERY";
+    /// <summary>
     /// TRACE HTTP Method
     /// </summary>
     public const string Trace = "TRACE";

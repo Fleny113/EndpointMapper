@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace EndpointMapper.SourceGenerator;
 
-internal sealed record EndpointMethodInformation(ISymbol Method, string HttpVerb, List<string> Routes);
+internal sealed record EndpointMethodInformation(string MethodName, string HttpVerb, ImmutableArray<string> Routes);

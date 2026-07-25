@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace EndpointMapper.TestApplication.Endpoints;
 
-public abstract class MultiEndpoint : IEndpoint, IConfigureEndpoint
+public abstract class MultiEndpoint : IEndpoint
 {
     public static void Configure(RouteHandlerBuilder builder, string route, string method)
     {
@@ -32,9 +32,11 @@ public abstract class MultiEndpoint : IEndpoint, IConfigureEndpoint
 
     [HttpMap(HttpMapMethod.Post, "/multi/3")]
     public static Ok<string> HandleButDifferent(HttpContext context)
-        => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)"); [HttpMap(HttpMapMethod.Post, "/multi/3")]
+        => TypedResults.Ok(
+            $"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
 
     [HttpMap(HttpMapMethod.Options, "/multi")]
     public static Ok<string> HandleOption(HttpContext context)
-        => TypedResults.Ok($"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
+        => TypedResults.Ok(
+            $"{context.Request.Method} {context.Request.Path}; {nameof(HandleButDifferent)}(HttpContext)");
 }
