@@ -19,6 +19,7 @@
 		<ProjectReference
 			Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj"
 			ReferenceBuildAssembly="false"
+			PrivateAssets="all"
 		/>
 	</ItemGroup>
 
