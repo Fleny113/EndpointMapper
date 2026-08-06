@@ -111,4 +111,4 @@ To see all the changes that have been made to the EndpointMapper since v2 code y
 
 ## Licence
 
-EndpointMapper is under the [MIT](./LICENSE.txt) license.
+EndpointMapper is under the [MIT](https://github.com/Fleny113/EndpointMapper/blob/main/LICENSE.txt) license.
