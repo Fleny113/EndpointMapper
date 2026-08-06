@@ -107,7 +107,7 @@ however these have been removed. Constructor parameters are not stored as the so
 - `EndpointMapperExtensions` used to be generated as a public class, it's now an internal embedded class, meaning that it will only be accessible by the assembly
 that generates it even with `InternalsVisibileTo`. If you need to expose this method to another assembly, wrap it with a custom public api.
 
-To see all the changes that have been made to the EndpointMapper since v2 code you can check the [Github commits](https://github.com/Fleny113/EndpointMapper/compare/v2...main)
+To see all the changes that have been made to the EndpointMapper since v2 code you can check the [Github commits](https://github.com/Fleny113/EndpointMapper/compare/v2.0.0..main)
 
 ## Licence
 
