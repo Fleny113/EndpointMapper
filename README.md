@@ -102,7 +102,7 @@ In v3 there have been some breaking changes:
 the new OpenAPI packages deal with that by themself.
 - `IConfigureEndpoint` and `IRegisterEndpoint` no longer exist in favor of virtual methods on `IEndpoint`.
 - The library is now built against .NET 10
-- `HttpMapAttribute` no longer has attributes: there used to be a public method string and an internal string array for the routes,
+- `HttpMapAttribute` no longer has properties: there used to be a public method string and an internal string array for the routes,
 however these have been removed. Constructor parameters are not stored as the source generator doesn't rely on them.
 - `EndpointMapperExtensions` used to be generated as a public class, it's now an internal embedded class, meaning that it will only be accessible by the assembly
 that generates it even with `InternalsVisibileTo`. If you need to expose this method to another assembly, wrap it with a custom public api.
