@@ -37,11 +37,11 @@ different HTTP verbs and `"<route>"` to one or more routes to map the endpoint t
 [^HttpMapMethods]: The values in `HttpMapMethods` are simply `const` strings, any `const` string can be used.
 The `HttpMapMethod` class is a convenience, as `HttpMethods` uses `static readonly` strings which are not allowed in attibutes.
 
-Any mapped method's properties can be edited without the provided attributes by overriding the virtual method
-`static void Configure(RouteHandlerBuilder builder, string route, string method)`: this grants access to the `RouteHandlerBuilder` returned by
-ASP.NET's mapping methods which can be used to customize the endpoint. The `route` and `method` parameters can be useful to distinguish multiple endpoints mapped in the same class.
+An endpoint's properties can be customized with ASP.NET attributes where available, and/or by overriding the virtual method
+`static void Configure(RouteHandlerBuilder builder, string route, string method)`.
+The `RouteHandlerBuilder` returned by ASP.NET's mapping methods is passed in as `builder`, allowing you to customize the endpoint further. The `route` and `method` parameters let you distinguish between multiple endpoints mapped within the same class.
 
-Any written method is mapped directly via ASP.NET's `MapGet`/`MapPost`/... so it can be used as if you were writing the function passed to it.
+The written method is mapped directly via ASP.NET's `MapGet`/`MapPost`/... so it can be used as if you were writing the function passed to it.
 As such, either `[AsRoute]`/`[AsBody]`/... or implicit mappings can be used.
 
 `Configure` is never called with methods mapped with the [method based mapping](#method-based).
@@ -51,7 +51,6 @@ As such, either `[AsRoute]`/`[AsBody]`/... or implicit mappings can be used.
 Override the virtual method `static void Register(IEndpointRouteBuilder builder)` and use `IEndpointRouteBuilder`[^IEndpointRouteBuilder] to call ASP.NET's mapping methods, then use the return value to customize the endpoint.
 
 [^IEndpointRouteBuilder]: This is the interface used for the `MapGet`/`MapPost`/... methods. Both `WebApplication` and `MapGroup`'s return value implement it.
-The `IEndpointRouteBuilder` instance is used to call `MapEndpointMapperEndpoints`.
 
 > [!NOTE]
 > This is the only way to get NativeAOT/Trimming support. Although EndpointMapper uses a source generator instead of reflection, source generators can't see other generators' outputs, so ASP.NET's RequestDelegate source generator can't generate NativeAOT/Trimming-compatible code for the Map methods.
