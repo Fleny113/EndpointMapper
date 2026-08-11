@@ -1,13 +1,13 @@
 # EndpointMapper
 
-Built on top of Minimal APIs and easy to use
+An easy to use library for Minimal API endpoint autodiscovery and mapping.
 
 > [!NOTE]
-> If you are updating your project to use EndpointMapper v3 [see the update guide](#updating-to-v3)
+> If you are updating your project to use EndpointMapper v3, see the [update guide](#updating-to-v3) below.
 
 ## Installation
 
-Add the package to your ASP.NET Core project
+Simply add the package to your ASP.NET Core project:
 
 ```sh
 dotnet add package EndpointMapper
@@ -27,37 +27,35 @@ Call `MapEndpointMapperEndpoints` in your `Program.cs` with the `WebApplication`
 app.MapEndpointMapperEndpoints();
 ```
 
-Then create a public class that implements `IEndpoint`, then pick one of 2 methods for mapping the endpoint(s):
+Then create a public class that implements `IEndpoint`, then choose one of the following approaches for mapping the endpoint(s):
 
 ### Attribute based
 
-Add a static method with attribute `HttpMap(HttpMapMethod.Get, "<route>")` where you can change `HttpMapMethod.Get`[^HttpMapMethods] to any other options for
-different HTTP verbs and `"<route>"` to one, or more, routes to map the endpoint to.
+Add a static method with attribute `HttpMap(HttpMapMethod.Get, "<route>")` where `HttpMapMethod.Get`[^HttpMapMethods] can be changed to any other options for
+different HTTP verbs and `"<route>"` to one or more routes to map the endpoint to.
 
-[^HttpMapMethods]: The values in `HttpMapMethods` are simply const strings, you can use any const string and the source generator will accept it.
+[^HttpMapMethods]: The values in `HttpMapMethods` are simply `const` strings, any `const` string can be used.
 The `HttpMapMethod` class is a convenience, as `HttpMethods` uses `static readonly` strings which are not allowed in attibutes.
 
-If you need to edit some property of the mapped method and you can't use the provided attributes, you can override the virtual method
-`static void Configure(RouteHandlerBuilder builder, string route, string method)`: this gives you access to the `RouteHandlerBuilder` returned by
-ASP.NET's mapping methods to customize the endpoint. `route` and `method` can be useful if you map multiple endpoints in the same class to distinguish them.
+An endpoint's properties can be customized with ASP.NET attributes where available, and/or by overriding the virtual method
+`static void Configure(RouteHandlerBuilder builder, string route, string method)`.
+The `RouteHandlerBuilder` returned by ASP.NET's mapping methods is passed in as `builder`, allowing you to customize the endpoint further. The `route` and `method` parameters let you distinguish between multiple endpoints mapped within the same class.
 
-The method you write is mapped directly with ASP.NET's `MapGet`/`MapPost`/... so you can use it as if you were writing the function passed to it.
-This mean you can use `[AsRoute]`/`[AsBody]`/... attributes or the implicit mappings.
+The written method is mapped directly via ASP.NET's `MapGet`/`MapPost`/... so it can be used as if you were writing the function passed to it.
+As such, either `[AsRoute]`/`[AsBody]`/... or implicit mappings can be used.
 
-`Configure` is never called with methods mapped with [the method based](#method-based) mapping.
+`Configure` is never called with methods mapped with the [method based mapping](#method-based).
 
 ### Method based
 
-Override the virtual method `static void Register(IEndpointRouteBuilder builder)` and use `IEndpointRouteBuilder`[^IEndpointRouteBuilder] to call the ASP.NET's mapping methods
-and use the return value to customize the endpoint.
+Override the virtual method `static void Register(IEndpointRouteBuilder builder)` and use `IEndpointRouteBuilder`[^IEndpointRouteBuilder] to call ASP.NET's mapping methods, then use the return value to customize the endpoint.
 
-[^IEndpointRouteBuilder]: This is the interface used for the `MapGet`/`MapPost`/... methods. A `WebApplication` and the return of `MapGroup` both implement this.
-The `IEndpointRouteBuilder` instance is the one you used to call `MapEndpointMapperEndpoints`.
+[^IEndpointRouteBuilder]: This is the interface used for the `MapGet`/`MapPost`/... methods. Both `WebApplication` and `MapGroup`'s return value implement it.
 
 > [!NOTE]
-> This the only supported way to get NativeAOT/Trimming support, as while EndpointMapper itself doesn't use any reflection and instead uses a source generator, since source generator don't see another generators outputs, the ASP.NET RequestDelegate source generator can't generate the NativeAOT/Trimmimg compatible code for the Map method making it incompatible for NativeAOT/Trimming.
+> This is the only way to get NativeAOT/Trimming support. Although EndpointMapper uses a source generator instead of reflection, source generators can't see other generators' outputs, so ASP.NET's RequestDelegate source generator can't generate NativeAOT/Trimming-compatible code for the Map methods.
 
-You can mix the 2 things if you want to, the source generator will always call `Register` and, if any, call `Configure` on all attribute mapped methods in the class.
+The two approaches can be mixed: the source generator will always call `Register`, and if the class contains any attribute mapped methods, it will call `Configure` on all of them.
 
 ## Example
 
@@ -74,7 +72,7 @@ app.MapEndpointMapperEndpoints();
 app.Run();
 ```
 
-Then create a class that implements `IEndpoint`
+Then create a class that implements `IEndpoint`:
 
 ExampleEndpoint.cs:
 ```csharp
@@ -96,19 +94,17 @@ You can see more examples in the `EndpointMapper.TestApplication` and `EndpointM
 
 ## Updating to v3
 
-In v3 there have been some breaking changes:
+In v3, there have been some breaking changes:
 
-- `EndpointMapper.OpenApi` has been removed. This packed used to provide a operation filter for the `Autorize` attribute,
-the new OpenAPI packages deal with that by themself.
-- `IConfigureEndpoint` and `IRegisterEndpoint` no longer exist in favor of virtual methods on `IEndpoint`.
-- The library is now built against .NET 10
-- `HttpMapAttribute` no longer has properties: there used to be a public method string and an internal string array for the routes,
-however these have been removed. Constructor parameters are not stored as the source generator doesn't rely on them.
-- `EndpointMapperExtensions` used to be generated as a public class, it's now an internal embedded class, meaning that it will only be accessible by the assembly
-that generates it even with `InternalsVisibileTo`. If you need to expose this method to another assembly, wrap it with a custom public api.
+- `EndpointMapper.OpenApi` has been removed. This package provided an operation filter for the `Authorize` attribute, no longer needed as the new OpenAPI packages deal with that by themselves;
+- `IConfigureEndpoint` and `IRegisterEndpoint` have been removed in favor of virtual methods on `IEndpoint`;
+- The library is now built against .NET 10;
+- `HttpMapAttribute` no longer has properties: the public method string and the internal string array for the routes have been removed. Constructor parameters are not stored as the source generator doesn't rely on them.
+- `EndpointMapperExtensions` is now generated as an internal embedded class (was previously a public class), and as such is now only accessible by its generating assembly, even with `InternalsVisibileTo`.
+To expose the method to another assembly, wrap it with a custom API.
 
-To see all the changes that have been made to the EndpointMapper since v2 code you can check the [Github commits](https://github.com/Fleny113/EndpointMapper/compare/v2.0.0..main)
+To see all the changes that have been made to the EndpointMapper since v2, check the [GitHub commits](https://github.com/Fleny113/EndpointMapper/compare/v2.0.0..main).
 
 ## Licence
 
-EndpointMapper is under the [MIT](https://github.com/Fleny113/EndpointMapper/blob/main/LICENSE.txt) license.
+EndpointMapper is licensed under the [MIT license](https://github.com/Fleny113/EndpointMapper/blob/main/LICENSE.txt).
