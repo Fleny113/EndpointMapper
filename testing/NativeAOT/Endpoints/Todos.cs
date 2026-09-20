@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using EndpointMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace EndpointMapper.TestApplication.NativeAOT.Endpoints;
+namespace NativeAOT.Endpoints;
 
 public static class TodoSingleton
 {

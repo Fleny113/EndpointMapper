@@ -1,8 +1,9 @@
+using EndpointMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Claims;
 
-namespace EndpointMapper.TestApplication.Endpoints;
+namespace TestApplication.Endpoints;
 
 public abstract class AuthenticationEndpoint : IEndpoint
 {

@@ -1,6 +1,7 @@
+using EndpointMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace EndpointMapper.TestApplication.Endpoints;
+namespace TestApplication.Endpoints;
 
 internal abstract class RegisterEndpoints : IEndpoint
 {

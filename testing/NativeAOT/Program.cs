@@ -1,5 +1,5 @@
 using EndpointMapper;
-using EndpointMapper.TestApplication.NativeAOT;
+using NativeAOT;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateSlimBuilder(args);

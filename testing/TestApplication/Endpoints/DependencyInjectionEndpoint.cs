@@ -1,9 +1,10 @@
+using EndpointMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Options;
 
-namespace EndpointMapper.TestApplication.Endpoints;
+namespace TestApplication.Endpoints;
 
 public abstract class DependencyInjectionEndpoint : IEndpoint
 {

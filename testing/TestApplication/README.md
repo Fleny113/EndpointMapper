@@ -1,4 +1,4 @@
-# EndpointMapper.TestApplication
+# TestApplication
 
 ## Sample application for EndpointMapper
 

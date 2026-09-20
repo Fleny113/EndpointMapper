@@ -90,7 +90,7 @@ public class ExampleEndpoint : IEndpoint
 }
 ```
 
-You can see more examples in the `EndpointMapper.TestApplication` and `EndpointMapper.TestApplication.NativeAOT` projects.
+You can see more examples in the `testing/TestApplication` and `testing/NativeAOT` projects.
 
 ## Updating to v3
 

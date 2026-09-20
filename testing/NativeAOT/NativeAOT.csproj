@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
-    <ProjectReference Include="..\EndpointMapper\EndpointMapper.csproj"  />
-    <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj"
+    <ProjectReference Include="..\..\EndpointMapper\EndpointMapper.csproj"  />
+    <ProjectReference Include="..\..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj"
       OutputItemType="Analyzer"
       ReferenceOutputAssembly="true"
       PrivateAssets="all" />

@@ -3,11 +3,11 @@
   "profiles": {
     "GeneratorTestApplication": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../EndpointMapper.TestApplication/EndpointMapper.TestApplication.csproj"
+      "targetProject": "../testing/Normal/Normal.csproj"
     },
     "GeneratorTestApplication.NativeAOT": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../EndpointMapper.TestApplication.NativeAOT/EndpointMapper.TestApplication.NativeAOT.csproj"
+      "targetProject": "../testing/NativeAOT/NativeAOT.csproj"
     }
   }
 }

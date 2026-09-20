@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="EndpointMapper.SourceGenerator/EndpointMapper.SourceGenerator.csproj" />
-  <Project Path="EndpointMapper.TestApplication.NativeAOT/EndpointMapper.TestApplication.NativeAOT.csproj" />
-  <Project Path="EndpointMapper.TestApplication/EndpointMapper.TestApplication.csproj" />
   <Project Path="EndpointMapper/EndpointMapper.csproj" />
+  <Project Path="testing/NativeAOT/NativeAOT.csproj" />
+  <Project Path="testing/TestApplication/TestApplication.csproj" />
 </Solution>

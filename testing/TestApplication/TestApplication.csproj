@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\EndpointMapper\EndpointMapper.csproj" />
-        <ProjectReference Include="..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" PrivateAssets="all" />
+        <ProjectReference Include="..\..\EndpointMapper\EndpointMapper.csproj" />
+        <ProjectReference Include="..\..\EndpointMapper.SourceGenerator\EndpointMapper.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" PrivateAssets="all" />
     </ItemGroup>
 </Project>
