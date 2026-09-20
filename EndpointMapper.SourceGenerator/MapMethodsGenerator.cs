@@ -17,7 +17,7 @@ public class MapMethodsGenerator : IIncrementalGenerator
             .Collect();
 
         context.RegisterSourceOutput(source: endpoints, action: SourceOutputAction);
-        context.RegisterPostInitializationOutput(ctx => ctx.AddEmbeddedAttributeDefinition());
+        context.RegisterPostInitializationOutput(static ctx => ctx.AddEmbeddedAttributeDefinition());
     }
 
     private static EndpointClassInformation? SyntaxEndpointTransformer(GeneratorSyntaxContext context, CancellationToken ct)
@@ -31,14 +31,14 @@ public class MapMethodsGenerator : IIncrementalGenerator
 
         var endpoints = classSymbol
             .GetMembers()
-            .Where(symbol => symbol is { IsStatic: true, Kind: SymbolKind.Method })
+            .Where(static symbol => symbol is { IsStatic: true, Kind: SymbolKind.Method })
             .SelectMany(collectionSelector: symbol =>
                 {
                     return symbol
                         .GetAttributes()
                         .Where(attribute => attribute.AttributeClass?.Equals(httpMapAttribute, SymbolEqualityComparer.Default) is true);
                 },
-                resultSelector: (symbol, attribute) =>
+                resultSelector: static (symbol, attribute) =>
                 {
                     if (
                         attribute.ConstructorArguments[0] is not { Kind: TypedConstantKind.Primitive, Value: string httpMethod } ||
